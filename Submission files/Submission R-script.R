@@ -2,6 +2,12 @@
 
 ## Load tidyverse for data manipulation
 if(!require("tidyverse")) install.packages("tidyverse")
+## Load mgcv for gam fiiting
+if(!require("mgcv")) install.packages("mgcv")
+## Load mvmeta for multivariate meta-analysis
+if(!require("mvmeta")) install.packages("mvmeta")
+
+
 
 
 
@@ -825,9 +831,10 @@ point.wise.DF.SS.Comb.diff.plot=point.wise.absolute_diff_SS.Comb%>%
 
 
 
+## ----MVmeta---------------------------------------------------------------------------------
 
 
-### MVmeta
+### 
 ### Clear enviroment 
 rm(list=ls()[! ls() %in% c("df3","expit")])
 
