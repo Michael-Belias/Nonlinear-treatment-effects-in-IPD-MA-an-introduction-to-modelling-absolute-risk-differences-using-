@@ -1,7 +1,6 @@
-### IPD-MA data-creator
 
-
-library(dplyr)
+## Load tidyverse for data manipulation
+if(!require("tidyverse")) install.packages("tidyverse")
 
 
 
