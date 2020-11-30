@@ -42,7 +42,7 @@ empty.area <- empty.area$layout[sapply(empty.area$grob,
 empty.area$t <- empty.area$t - 1 #extend up by 1 cell to cover facet header
 empty.area$b <- empty.area$b + 1 #extend down by 1 cell to cover x-axis
 
-gp2 <- gtable_add_grob(x = gp,
+simulated_plot2 <- gtable_add_grob(x = gp,
                        grobs = tableGrob(tab2,
                                          rows = NULL,
                                          theme = ttheme_minimal()),
@@ -51,7 +51,7 @@ gp2 <- gtable_add_grob(x = gp,
                        b = max(empty.area$b),
                        r = max(empty.area$r),
                        name = "textbox")
-grid::grid.draw(gp2)
+grid::grid.draw(simulated_plot2)
 
 
 

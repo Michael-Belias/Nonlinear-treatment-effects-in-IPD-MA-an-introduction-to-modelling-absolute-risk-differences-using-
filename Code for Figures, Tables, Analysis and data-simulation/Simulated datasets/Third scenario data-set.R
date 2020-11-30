@@ -61,7 +61,7 @@ df3$`Mortality risk` =  with(df3, 0.2+ Study.shift.intercept + BMI.standardised^
 
 
 ### Create the binary outcome given the mortality risks calculated above
-set.seed(59663)
+set.seed(32) # 59663
 df3$Y <- rbinom(dim(df3)[1],1,df3$`Mortality risk`) 
 
 ### Make treatment variable a factor with two levels "Control" and "Treated" 

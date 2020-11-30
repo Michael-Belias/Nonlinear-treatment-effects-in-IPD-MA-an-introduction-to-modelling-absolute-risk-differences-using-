@@ -1,3 +1,56 @@
+## ----Simulation of third IPD-MA scenario --------------------------------------------------------------------------------------
+source("Code for Figures, Tables, Analysis and data-simulation/Simulated datasets/First scenario data-set.R")
+
+##    Point-wise meta-analysis results for the third scenario
+##    Clear all environment besides the data-sets
+# rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")])
+
+## We follow White et al. and Riley et al. recommendations and we performed data augmentation
+## In our simulated data-set the range of BMI in Study 1 is [18.5,27] while in Study 5 [31,40]
+## To avoid errors we create pseudo-data on the boundaries and give them very small weight to 
+## avoid biased regression curves. 
+
+## We introduce the weight variable in our data-set 
+## In the original data-set the weight will be 1, while in the augmented data-set 0.000000001
+df3$weight =  1
+
+
+## We save into objects the values near the overall boundaries 18.5 and 40 
+## Note that how close we wish to be on the boundaries is arbitrary. 
+
+lower=df3[df3$BMI<20,] ;   n.lower =  dim(lower)[1]
+upper=df3[df3$BMI >38.5,]; n.upper =  dim(upper)[1]
+
+
+## We produce 4 copies of the lower and upper data-sets and give them very small weights.
+
+rep.lower=  do.call(rbind, replicate(4, lower, simplify = FALSE)) ;  rep.lower$weight= 0.000001
+rep.upper=  do.call(rbind, replicate(4, upper, simplify = FALSE)) ;  rep.upper$weight= 0.000001
+
+## As you can see the lower and upper data-sets use the original study information
+head(rep.lower); head(rep.upper)
+## So we change the names of the studies within the data-sets. 
+
+rep.lower$Study = rep(unique(df3$Study)[-1], each= n.lower)
+rep.upper$Study = rep(unique(df3$Study)[-5], each= n.upper)
+
+## And we add them to the original data-set.
+
+
+df3 =  rbind(df3, rep.lower, rep.upper)
+## Now each study has values near the boundaries of BMI [18.5,40]
+
+df3%>%
+  group_by(Study)%>%
+  summarise(range(BMI))
+
+
+### remove the object we don't need
+
+rm(lower,upper, rep.lower,rep.upper)
+
+
+## ----Pointwise meta-analysis --------------------------------------------------------------------------------------
 
 ## Fit a RCS model per study
 RCS.Comb = df3%>%
@@ -252,8 +305,7 @@ point.wise.DF.SS.Comb.plot = point.wise.DF.SS.Comb%>%
   annotate("text",x = 19.25,y=0.9, size = 10, label = "d") +ylim(c(0,1))
 
 
-
-
+##-------- Absolute risk differences (Treatment effect plot) -----------------------------------------------------------------------------
 
 ### RCS
 ### Combined IPD-set with different BMI ranges and between study differences in the mortality risks
@@ -291,8 +343,6 @@ predictions.SS.Comb=predictions.SS.Comb%>%
 
 ### Load assisting function to calculate absolute risk differences and SEs
 source("Assisting functions/Create risk differences.R")
-
-
 
 ### RCS
 ### Combined IPD-set with different BMI ranges and between study differences in the mortality risks

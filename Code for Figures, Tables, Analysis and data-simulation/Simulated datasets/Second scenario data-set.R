@@ -29,7 +29,7 @@ df2$`Mortality risk` = NA
 df2$`Mortality risk` =  with(df2, 0.2+ BMI.standardised^2 + BMI.standardised^4*Treatment-  BMI.standardised^2* Treatment)
 
 ### Create the binary outcome given the mortality risks calculated above
-set.seed(59663)
+set.seed(32) # 59663
 df2$Y <- rbinom(dim(df2)[1],1,df2$`Mortality risk`) 
 
 ### Make treatment variable a factor with two levels "Control" and "Treated" 

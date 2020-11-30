@@ -236,7 +236,7 @@ p1=  ggplot(mvmeta.df.BS,aes(x = BMI, fit, linetype= Treatment, color= Treatment
 legend = gtable_filter(ggplotGrob(p1), "guide-box") 
 
 
-
+  
 library(grid)
 MV_meta_plot_HT = grid.arrange(arrangeGrob(g.mvmeta.total.RCS,g.mvmeta.total.BS,
                                            ncol = 2, 
@@ -253,8 +253,6 @@ MV_meta_plot_HT = grid.arrange(arrangeGrob(g.mvmeta.total.RCS,g.mvmeta.total.BS,
 
 ## ----Absolute risk differences ---------------------------------------------------------------------------------------------------------
 ### MVmeta
-rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","mvmeta.df.RCS","mvmeta.df.BS")])
-
 source("Assisting functions/Create risk differences.R")
 
 

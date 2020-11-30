@@ -1,35 +1,63 @@
-## 
-##Point-wise meta-analysis results for the first scenario
+## ----Simulation of first IPD-MA scenario --------------------------------------------------------------------------------------
+source("Code for Figures, Tables, Analysis and data-simulation/Simulated datasets/First scenario data-set.R")
+
+##    Point-wise meta-analysis results for the first scenario
 ### Clear all environment besides the data-sets
 rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")])
 
 
-### %>% is a pipeline function each line uses the result of the previous pipe. 
+### Introduce the expit function to back-transform from logit scale
+
+expit<-function(rs) {1/(1+exp(-rs))}
+
+## We create 3 lists with the corresponding knots positions for RCS, BS, PS respectively. 
+## For RCS we follow Harrel's suggestion and use the 5th, 27.5th 50th, 72.5th and 95th percentiles.
+
+## 5 knots in RCS (per treatment arm) correspond to 10 degrees of freedom spent
+Knots.RCS.HT =list(BMI = quantile(df1$BMI, probs = c(0.05,0.275,0.5,0.725,0.95))) 
+
+## 2 inner + boundaries in 2nd degree B-splines correspond to 10 degrees of freedom spent
+Knots.BS.HT = list(BMI= c(4.00, 11.25, 18.50, 25.75, 33.00, 40.25, 47.50, 54.75)) 
+
+## 
+Knots.PS.HT = list(BMI= c(15.5,17,18.5,20,21.5,23,24.5,26,27.5,29,30.5,32,33.5,35,36.5,38,39.5,41,42.5,44)) 
+
+
+## ----Pointwise neta-analysis --------------------------------------------------------------------------------------
+
+### %>% is a pipeline function 
+### each line uses the result of the previous pipe 
+### 
 
 ## Fit a RCS model per study
 RCS.HT = df1%>%                                ### We call the data-set of the first scenario
   arrange(desc(Study))%>%                      ### Order the date based on study                
   group_by(Study) %>%                          ### Group them based on study   
-  do(model = gam(formula = Y~ BMI + Treatment+ s(BMI,bs ="cr",fx=T,by = Treatment,k = 5),     ### For each study we fit a RCS 
-                 knots = list(BMI = quantile(.$BMI, probs = c(0.05,0.275,0.5,0.725,0.95))),   ### We use in all studies the same specifications
-                 family = binomial("logit"), data = .,                                        ### Note that in pointwise meta-analysis one can use
-                 method="REML" ))                                                             ### different models per study 
+  do(model = gam(Y~ BMI + Treatment+ s(BMI,bs ="cr",fx=T,by = Treatment,k = 5),     ### For each study we fit a RCS 
+                 knots = Knots.RCS.HT,          ### For all studies we the same specifications for knots
+                 family = binomial("logit"),   ### Note that in pointwise meta-analysis one can use different modelling techniques per study
+                 data = .,                     ### different models per study 
+                 method="REML" ))              
 
 ## Similarly we
 ## Fit a B-spline model per study
-BS.HT = df1%>%
-  arrange(desc(Study))%>%
-  group_by(Study) %>%
-  do(model = gam(formula = Y~ BMI + Treatment+ s(BMI,bs ="bs",fx=T,by = Treatment,m=c(2,0),k = 5),
-                 family = binomial("logit"), data = ., 
+BS.HT = df1%>%                                 ### We call the data-set of the first scenario
+  arrange(desc(Study))%>%                      ### Order the date based on study 
+  group_by(Study) %>%                          ### Group them based on study   
+  do(model = gam(Y~ BMI + Treatment+ s(BMI,bs ="bs",fx=T,by = Treatment,m=c(2,0),k = 5), ### For each study we fit a B-splines 
+                 knots = Knots.BS.HT,          ### For all studies we the same specifications for knots
+                 family = binomial("logit"), 
+                 data = ., 
                  method="REML" ))
 
 ## Fit a P-spline model per study
-PS.HT = df1%>%
-  arrange(desc(Study))%>%
-  group_by(Study) %>%
-  do(model = gam(formula = Y~ BMI + Treatment+ s(BMI,bs ="ps",fx=F,by = Treatment,k=17), 
-                 family = binomial("logit"), data = ., 
+PS.HT = df1%>%                                 ### We call the data-set of the first scenario
+  arrange(desc(Study))%>%                      ### Order the date based on study 
+  group_by(Study) %>%                          ### Group them based on study   
+  do(model = gam(Y~ BMI + Treatment+ s(BMI,bs ="ps",fx=F,by = Treatment,m=c(1,2),k = 17), ### For each study we fit a P-spline 
+                 knots = Knots.PS.HT,          ### For all studies we the same specifications for knots
+                 family = binomial("logit"), 
+                 data = ., 
                  method="REML" ))
 
 ## Fit a Smoothing splines model per study
@@ -379,7 +407,7 @@ absolute_diff_SS.HT=  absolute_diff_SS.HT%>%
   select(Study, BMI, fit.diff, diff.lower, diff.upper)
 
 
-## ----Poiwise meta-analysis absolute risk differences--------------------------------------------------------------------------------------------------------
+## ----Poiwise meta-analysis for absolute risk differences--------------------------------------------------------------------------------------------------------
 
 ### Load assisting function
 source("Assisting functions/Create risk differences.R")

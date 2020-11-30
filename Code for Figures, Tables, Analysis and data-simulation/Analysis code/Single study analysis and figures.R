@@ -248,7 +248,7 @@ legend = gtable_filter(ggplotGrob(p1), "guide-box")
 
 
 
-png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure6.png",width = 1240, height = 1680) 
+png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 6.png",width = 1240, height = 1680) 
 ##### Plot all the plots in a grid
 grid.arrange(arrangeGrob(gRCS,gBS,gPS,gSS,
                          bottom= textGrob(label = expression(BMI (Kg/m^2)), hjust = 0,gp = gpar(fontsize=32)), 

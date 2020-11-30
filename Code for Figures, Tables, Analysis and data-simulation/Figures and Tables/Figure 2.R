@@ -1,4 +1,4 @@
-g1= df1%>%
+simulated_plot1= df1%>%
   ggplot( aes(x = BMI, `Mortality risk`, fill=Study, linetype= Treatment, color= Treatment)) + 
   geom_line(size=1.5) + facet_wrap(.~Study, dir="v")+ ylab("Mortality risk") + 
   xlab(expression(paste("BMI ", (Kg/m^2)))) + 
@@ -21,4 +21,4 @@ g1= df1%>%
         legend.position = "bottom")
 
 
-g1
+simulated_plot1

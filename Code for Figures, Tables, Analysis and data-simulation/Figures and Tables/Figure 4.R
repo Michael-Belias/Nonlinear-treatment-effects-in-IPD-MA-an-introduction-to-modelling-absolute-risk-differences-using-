@@ -14,8 +14,8 @@ simulated_plot3= df3 %>%
   geom_line(size=1.5) + ylab("Mortality risk") +xlab(expression(paste("BMI ", (Kg/m^2))))  +
   scale_color_jama()+
   facet_wrap(fct_relevel(Study, "total", after = Inf)~., ncol = 2, dir="v")+ 
-  geom_vline(data = table2, aes(xintercept=`Minimum BMI`),linetype =2)+ 
-  geom_vline(data = table2, aes(xintercept=`Maximum BMI`),linetype =2) + 
+  geom_vline(data = tab3, aes(xintercept=`Minimum BMI`),linetype =2)+ 
+  geom_vline(data = tab3, aes(xintercept=`Maximum BMI`),linetype =2) + 
   theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 48,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 34,face = "italic"),
@@ -47,7 +47,7 @@ empty.area <- empty.area$layout[sapply(empty.area$grob,
 empty.area$t <- empty.area$t - 1 #extend up by 1 cell to cover facet header
 empty.area$b <- empty.area$b + 1 #extend down by 1 cell to cover x-axis
 
-gp3 <- gtable_add_grob(x = gp,
+simulated_plot3 <- gtable_add_grob(x = gp,
                        grobs = tableGrob(tab3,
                                          rows = NULL,
                                          theme = ttheme_minimal()),
@@ -56,5 +56,5 @@ gp3 <- gtable_add_grob(x = gp,
                        b = max(empty.area$b),
                        r = max(empty.area$r),
                        name = "textbox")
-grid::grid.draw(gp3)
+grid::grid.draw(simulated_plot3)
 

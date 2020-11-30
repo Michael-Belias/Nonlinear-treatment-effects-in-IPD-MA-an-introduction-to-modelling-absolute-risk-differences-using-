@@ -1,7 +1,7 @@
 ####################
 ##### Second scenario
 ####################
-rm(list=ls()[! ls() %in% c("df1","df2","df3","expit")]) ### To clear all environment besides the data-set
+#rm(list=ls()[! ls() %in% c("df1","df2","df3","expit")]) ### To clear all environment besides the data-set
 Knots= list (BMI = (quantile(df2$BMI , probs = c(0.05,0.275,0.5,0.725,0.95))))
 
 

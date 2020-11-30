@@ -1,14 +1,66 @@
-### MVmeta
-### Clear enviroment 
-rm(list=ls()[! ls() %in% c("df1","df2","df3","expit")])
+###--------------------MVmeta--------------------------------------
+
+source("Code for Figures, Tables, Analysis and data-simulation/Simulated datasets/Second scenario data-set.R")
+#rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")])
+### Introduce the expit function to back-transform from logit scale
+
+expit<-function(rs) {1/(1+exp(-rs))}
+
+
+## We follow White et al. and Riley et al. recommendations and we performed data augmentation
+## In our simulated data-set the range of BMI in Study 1 is [18.5,27] while in Study 5 [31,40]
+## To avoid errors we create pseudo-data on the boundaries and give them very small weight to 
+## avoid biased regression curves. 
+
+## We introduce the weight variable in our data-set 
+## In the original data-set the weight will be 1, while in the augmented data-set 0.000000001
+df2$weight =  1
+
+
+## We save into objects the values near the overall boundaries 18.5 and 40 
+## Note that how close we wish to be on the boundaries is arbitrary. 
+
+lower=df2[df2$BMI<19,] ;   n.lower =  dim(lower)[1]; lower$BMI = 18.5
+upper=df2[df2$BMI >39.5,]; n.upper =  dim(upper)[1]; upper$BMI = 40
+
+
+## We produce 4 copies of the lower and upper data-sets and give them very small weights.
+
+rep.lower=  do.call(rbind, replicate(4, lower, simplify = FALSE)) ;  rep.lower$weight= 0.0000000001
+rep.upper=  do.call(rbind, replicate(4, upper, simplify = FALSE)) ;  rep.upper$weight= 0.0000000001
+
+## As you can see the lower and upper data-sets use the original study information
+head(rep.lower); head(rep.upper)
+## So we change the names of the studies within the data-sets. 
+
+rep.lower$Study = rep(unique(df2$Study)[-1], each= n.lower)
+rep.upper$Study = rep(unique(df2$Study)[-5], each= n.upper)
+
+## And we add them to the original data-set.
+
+
+df2 =  rbind(df2, rep.lower, rep.upper)
+## Now each study has values near the boundaries of BMI [18.5,40]
+
+df2%>%
+  group_by(Study)%>%
+  summarise(range(BMI))
+
+
+### remove the object we don't need
+
+rm(lower,upper, rep.lower,rep.upper)
+
 
 ### RCS  
 ### Define the knots position in 5%, 27.5%,  50%, 72.5% and 95% quantiles of BMI
-Knots.RCS.df2 =   list(BMI=quantile(df2$BMI, probs = c(0.05,0.275,0.5,0.725,0.95))) 
+Knots.RCS.df2 =   list(BMI=c(21, 25, 29, 31, 33.5, 37.8)) 
+
+K <- length(c(21, 25, 29, 31, 33.5, 37.8))
 
 ## The formula for all Studies is the same so we save it 
 
-formula.RCS = Y~ BMI + Treatment+ s(BMI,bs ="cr",fx=T,by = Treatment,k = 5)
+formula.RCS = Y~ BMI + Treatment+ s(BMI,bs ="cr",fx=T,by = Treatment,k = K)
 
 ## Number of studies
 
@@ -50,6 +102,7 @@ for( i in unique(df2$Study)){
   # Fit the GAM
   fit = gam(formula = formula.RCS ,
             knots = Knots.RCS.df2, 
+            weights= weight,
             family = binomial("logit"), data = minidf2)
   ### Extract the coefficients and their standard errors for mvmeta
   estimated.coefficients.RCS.df2[j,] = fit$coefficients
@@ -62,7 +115,7 @@ for( i in unique(df2$Study)){
 rm(k,j)
 
 
-
+table(df2$weight)
 
 #### Perform a multivariate meta-analysis
 mv.fit.RCS.df2 = mvmeta(estimated.coefficients.RCS.df2, S.RCS.df2)
@@ -164,7 +217,9 @@ for( i in unique(df2$Study)){
     filter(Study == i)
   
   # Fit the GAM
-  fit = gam(formula = formula.BS ,knots = Knots.BS.df2, family = binomial("logit"), data = minidf2)
+  fit = gam(formula = formula.BS ,
+            knots = Knots.BS.df2, 
+            family = binomial("logit"), data = minidf2)
   ### Extract the coefficients and their standard errors for mvmeta
   estimated.coefficients.BS.df2[j,] = fit$coefficients
   S.BS.df2[j,] = vcov(fit)[lower.tri(vcov(fit), diag = T)]
@@ -265,7 +320,6 @@ MV_meta_plot_DR = grid.arrange(arrangeGrob(g.mvmeta.total.RCS.DR,g.mvmeta.total.
 
 ## ----Absolute risk differences ---------------------------------------------------------------------------------------------------------
 ### MVmeta
-rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","mvmeta.df2.RCS","mvmeta.df2.BS")])
 
 source("Assisting functions/Create risk differences.R")
 
@@ -339,7 +393,7 @@ MV.meta_absolute_difference.BS.DR.plot =
   annotate("text",x = 19.25,y=0.2, size = 10, label = "b")
 
 
-MV_meta_plot_absolute_diff_HT = grid.arrange(MV.meta_absolute_difference.RCS.DR.plot,MV.meta_absolute_difference.BS.DR.plot,
+MV_meta_plot_absolute_diff_DR = grid.arrange(MV.meta_absolute_difference.RCS.DR.plot,MV.meta_absolute_difference.BS.DR.plot,
                                              ncol = 2, 
                                              right = textGrob(label = "", vjust = -1,gp = gpar(fontsize=32)),
                                              bottom= textGrob(label = expression(BMI (Kg/m^2)),vjust=0.25, hjust = 0.25,gp = gpar(fontsize=32)))

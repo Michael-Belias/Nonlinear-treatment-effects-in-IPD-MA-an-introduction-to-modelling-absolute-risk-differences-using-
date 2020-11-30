@@ -3,7 +3,7 @@
 ####################
 
 
-rm(list=ls()[! ls() %in% c("df1","df2","df3","expit")]) ### To clear all environment besides the data-set
+#rm(list=ls()[! ls() %in% c("df1","df2","df3","expit")]) ### To clear all environment besides the data-set
 Knots= list (BMI = (quantile(df3$BMI , probs = c(0.05,0.275,0.5,0.725,0.95))))
 
 
@@ -161,13 +161,6 @@ g.GAMM.SS.Combined=ggplot(preds.SS.Combined, aes(BMI, expit(fit), linetype= Trea
 
 
 g.GAMM.Combined = grid.arrange(g.GAMM.RCS.Combined,g.GAMM.BS.Combined,g.GAMM.PS.Combined,g.GAMM.SS.Combined, ncol=4, right = textGrob(label = "", vjust = -1,gp = gpar(fontsize=32)))
-
-grid.arrange(arrangeGrob(g.GAMM.HT,g.GAMM.DR,g.GAMM.Combined, ncol=1,
-                         bottom= textGrob(label = expression(paste("BMI ", (Kg/m^2))), vjust=0.35,
-                                          hjust = 0.35,gp = gpar(fontsize=32)), 
-                         left = textGrob(label = "Mortality risk", rot = 90, vjust = 1,gp = gpar(fontsize=32))), heights =c(12,1), g.legend)
-
-
 
 
 

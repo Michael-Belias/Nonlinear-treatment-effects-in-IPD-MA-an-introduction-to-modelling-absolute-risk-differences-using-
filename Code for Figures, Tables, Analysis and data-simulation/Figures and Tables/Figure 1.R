@@ -1,4 +1,4 @@
-g0= ggplot(single.df, aes(x = BMI, `Mortality risk`,linetype= Treatment, color= Treatment)) + 
+simulated_plot_single_df= ggplot(single.df, aes(x = BMI, `Mortality risk`,linetype= Treatment, color= Treatment)) + 
   geom_line(size=1.5) + ylab("Mortality risk") + xlab(expression(paste("BMI ", (Kg/m^2))))+
   scale_color_jama()+
   theme_bw()+ ylim(c(0,1))+
@@ -18,4 +18,4 @@ g0= ggplot(single.df, aes(x = BMI, `Mortality risk`,linetype= Treatment, color= 
         legend.position = "bottom",
         legend.title=element_blank())
 
-g0
+simulated_plot_single_df
