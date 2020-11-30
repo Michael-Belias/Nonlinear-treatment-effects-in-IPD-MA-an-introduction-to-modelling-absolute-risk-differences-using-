@@ -237,7 +237,9 @@ source("Multivariate meta-analysis/Multivariate meta-analysis (3rd scenario).R")
 
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 10.png",width = 1240, height = 1680) 
 
-grid.arrange(arrangeGrob(g.mvmeta.total.RCS, g.mvmeta.total.BS, g.mvmeta.total.RCS.DR, g.mvmeta.total.BS.DR,g.mvmeta.total.RCS.Comb, g.mvmeta.total.BS.Comb),
+grid.arrange(arrangeGrob(g.mvmeta.total.RCS, 
+                         g.mvmeta.total.BS, 
+                         g.mvmeta.total.RCS.DR, g.mvmeta.total.BS.DR,g.mvmeta.total.RCS.Comb, g.mvmeta.total.BS.Comb),
              bottom = textGrob(label = expression(paste("BMI ", (Kg/m^2))), 
                                rot = 0, vjust = 0,hjust = 0.25,
                                gp = gpar(fontsize=32)),
@@ -1098,11 +1100,9 @@ rep.upper=  do.call(rbind, replicate(2, upper, simplify = FALSE)) ;  rep.upper$w
 
 rep.upper$study = rep(c("Damoiseaux","Saux"), each= n.upper)
 
-
-miniIPD =  rbind(miniIPD, rep.upper)
 ### First we get the knots from each data-set 3 knot in 10%, 50% and 90% quantiles
 Knots.miniIPD =   list(age=quantile(miniIPD$age, probs = c(0.1,0.5,0.9))) 
-
+miniIPD =  rbind(miniIPD, rep.upper)
 
 ## The formula for all regions is the same so we save it 
 
@@ -1174,7 +1174,27 @@ rm(k,j)
 
 
 #### Perform for each region a multivariate meta-analysis
-mv.fit.RCS.miniIPD= mvmeta(estimated.coefficients.miniIPD, S.miniIPD)
+mv.fit.RCS.miniIPD= mvmeta(estimated.coefficients.miniIPD, S.miniIPD,control = list(maxiter=1000))
+
+new.dat= data.frame(age= rep(seq(0,9,length.out = 50),each = 20),
+                    treat = rep(unique(miniIPD$treat),500), 
+                    bilat_0 =  rep(rep(unique(miniIPD$bilat_0),each=2),250),
+                    study =  rep(rep(unique(miniIPD$study),each =4),50), 
+                    poutcome = rep(c(0,1),500)
+)
+
+
+### Fit a stacked analysis for each data-set to get the model matrix
+fit.miniIPD = gam( formula =formula,
+                   knots = Knots.miniIPD,
+                   family = binomial("logit"), 
+                   data = new.dat)
+
+### Get the model matrices for each data-set
+
+X.p.miniIPD =  model.matrix(fit.miniIPD)
+
+
 
 
 prediction.interval.mvmeta.miniIPD=  X.p.miniIPD%*% coef(mv.fit.RCS.miniIPD)
@@ -1184,7 +1204,7 @@ prediction.interval.mvmeta.lower.miniIPD=  X.p.miniIPD%*% coef(mv.fit.RCS.miniIP
 prediction.interval.mvmeta.upper.miniIPD =  X.p.miniIPD %*% coef(mv.fit.RCS.miniIPD) + sqrt( rowSums(X.p.miniIPD  * (X.p.miniIPD  %*% vcov(mv.fit.RCS.miniIPD)))) * 1.96
 
 
-mvmeta.df.RCS = cbind(miniIPD[,c("study","age","treat","bilat_0")],
+mvmeta.df.RCS = cbind(new.dat[,c("study","age","treat","bilat_0")],
                       fit =  expit(prediction.interval.mvmeta.miniIPD), 
                       Lower= expit(prediction.interval.mvmeta.lower.miniIPD),
                       Upper =expit(prediction.interval.mvmeta.upper.miniIPD ))
@@ -1231,19 +1251,19 @@ g.mvmeta.total.RCS
 
 formula = poutcome ~  treat+ bilat_0 + treat*bilat_0  + 
   age+ 
-  s(age, by = bilat_0, bs="bs",fx=T,  k=5, m= c(2,0))+
-  s(age, by = treat, bs="bs",fx=T, k=5, m= c(2,0))
+  s(age, by = bilat_0, bs="bs",fx=T,  k=4, m= c(2,0))+
+  s(age, by = treat, bs="bs",fx=T, k=4, m= c(2,0))
 
 
 # Number of studies in each region
 
 nstudies.miniIPD = length(unique(miniIPD$study))
 
-
+Knots.BS.MV  = list (age = c(-8.86008333, -4.39283333,0, 2.5 , 9, 13.47616667, 17.94341667))
 
 ### Fit a stacked analysis for each data-set to get the model matrix
 fit.miniIPD = gam( formula =formula,
-                   family = binomial("logit"), 
+                   family = binomial("logit"), knots = Knots.BS.MV,
                    data = miniIPD)
 
 ### Get the model matrices for each data-set
@@ -1275,7 +1295,7 @@ for( i in unique(miniIPD$study)){
     filter(study == i)
   
   # Fit the GAM
-  fit = gam(formula = formula ,weights = weight,
+  fit = gam(formula = formula ,weights = weight,knots = Knots.BS.MV,
             family = binomial("logit"), data = minidf1)
   
   
@@ -1293,9 +1313,27 @@ rm(k,j)
 
 
 
+new.dat= data.frame(age= rep(seq(0,9,length.out = 50),each = 20),
+                    treat = rep(unique(miniIPD$treat),500), 
+                    bilat_0 =  rep(rep(unique(miniIPD$bilat_0),each=2),250),
+                    study =  rep(rep(unique(miniIPD$study),each =4),50), 
+                    poutcome = rep(c(0,1),500)
+)
+
+
+### Fit a stacked analysis for each data-set to get the model matrix
+fit.miniIPD = gam( formula =formula,
+                   knots = Knots.BS.MV,
+                   family = binomial("logit"), 
+                   data = new.dat)
+
+### Get the model matrices for each data-set
+
+X.p.miniIPD =  model.matrix(fit.miniIPD)
+
 
 #### Perform for each region a multivariate meta-analysis
-mv.fit.BS.miniIPD= mvmeta(estimated.coefficients.miniIPD, S.miniIPD)
+mv.fit.BS.miniIPD= mvmeta(estimated.coefficients.miniIPD, S.miniIPD,control = list(maxiter=1000))
 
 
 prediction.interval.mvmeta.miniIPD=  X.p.miniIPD%*% coef(mv.fit.BS.miniIPD)
@@ -1306,7 +1344,7 @@ prediction.interval.mvmeta.upper.miniIPD =  X.p.miniIPD %*% coef(mv.fit.BS.miniI
 
 
 
-mvmeta.df.BS = cbind(miniIPD[,c("study","age","treat","bilat_0")],
+mvmeta.df.BS = cbind(new.dat[,c("study","age","treat","bilat_0")],
                      fit =  expit(prediction.interval.mvmeta.miniIPD), 
                      Lower= expit(prediction.interval.mvmeta.lower.miniIPD),
                      Upper =expit(prediction.interval.mvmeta.upper.miniIPD ))
