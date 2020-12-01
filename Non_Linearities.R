@@ -1369,27 +1369,26 @@ g.mvmeta.total.BS = ggplot(mvmeta.df.BS,aes(x = age, fit, linetype= treat, color
 g.mvmeta.total.BS
 
 
-p1= ggplot(preds.RCS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
-  geom_ribbon(data = preds.RCS, aes(ymin = lower,ymax=upper),alpha=0.2) +
-  scale_color_jama(name= "Treatment")+ 
-  scale_linetype_discrete(name ="Treatment")+
-  ylab("Risk of developing fever afte 1 week") + 
-  xlab("Children's age")+ theme_bw()+
+p1= ggplot(mvmeta.df.BS,aes(x = age, fit, linetype= treat, color= treat)) + 
+  geom_line(size=2)+ ylim(c(0,1))+
+  ylab("")+ xlab("") + scale_color_jama()+ facet_wrap(~bilat_0)+
+  theme_bw()+ geom_ribbon(mapping = aes(ymin=Lower, ymax=Upper),alpha=0.25)+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
-        panel.spacing = unit(2, "lines"),         panel.border = element_rect(colour = "black", fill=NA, size=2),
+        panel.spacing = unit(2, "lines"),
+        panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
-        axis.title.y = element_text(size = 30),
+        axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
         axis.text.y = element_text(face="bold",  size=18),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
-        legend.title =element_text(size=28, hjust = 0.5),
+        legend.title =element_blank(),
         legend.position = "right") + 
-  geom_text(data= data.frame( label = c("", "a)"),bilat_0   = preds.RCS$bilat_0[c(1,3)]),
+  geom_text(data= data.frame( label = c("", "a)"),bilat_0   = mvmeta.df.BS$bilat_0[c(1,3)]),
             mapping = aes(x = 5, y = 0.4, label = label), 
             inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
 
