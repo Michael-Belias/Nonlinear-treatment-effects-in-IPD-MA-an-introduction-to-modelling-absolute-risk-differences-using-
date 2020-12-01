@@ -378,8 +378,8 @@ source("Assisting functions/Point-wise meta-analysis.R")
 
 
 ### Ommit Damoiseaux and Burke since they have only 4 and 7 levels in the age variable
-miniIPD.splines= miniIPD%>% filter(( study != "Burke" & study != "Appelman"))
-miniIPD.linear= miniIPD%>% filter((  study == "Burke" | study == "Appelman"))
+miniIPD.splines= miniIPD%>% filter((  study != "Appelman"))
+miniIPD.linear= miniIPD%>% filter((   study == "Appelman"))
 
 
 linear.Models =  miniIPD.linear%>%
@@ -435,8 +435,8 @@ SS= miniIPD.splines%>%
   arrange(desc(study))%>%
   group_by(study) %>%
   do(model = gam(formula = poutcome ~ treat + bilat_0 + treat*bilat_0  + age +
-                   s(age, by = treat, bs="tp")+
-                   s(age, by = bilat_0, bs="tp"), 
+                   s(age, by = treat,   bs="tp",fx = F,k=5)+
+                   s(age, by = bilat_0, bs="tp",fx = F,k=5), 
                  family = binomial("logit"), data = ., 
                  method="REML" ))%>%
   rbind(., linear.Models)
@@ -1176,11 +1176,11 @@ rm(k,j)
 #### Perform for each region a multivariate meta-analysis
 mv.fit.RCS.miniIPD= mvmeta(estimated.coefficients.miniIPD, S.miniIPD,control = list(maxiter=1000))
 
-new.dat= data.frame(age= rep(seq(0,9,length.out = 50),each = 20),
-                    treat = rep(unique(miniIPD$treat),500), 
-                    bilat_0 =  rep(rep(unique(miniIPD$bilat_0),each=2),250),
+new.dat= data.frame(age= rep(seq(0,9,length.out = 40),each = 20),
+                    treat = rep(unique(miniIPD$treat),400), 
+                    bilat_0 =  rep(rep(unique(miniIPD$bilat_0),each=2),200),
                     study =  rep(rep(unique(miniIPD$study),each =4),50), 
-                    poutcome = rep(c(0,1),500)
+                    poutcome = rep(c(0,1),400)
 )
 
 
@@ -1231,7 +1231,7 @@ g.mvmeta.total.RCS = ggplot(mvmeta.df.RCS,aes(x = age, fit, linetype= treat, col
         legend.title =element_blank(),
         legend.position = "none")  + 
   geom_text(data= data.frame( label = c("a)", ""),bilat_0   = mvmeta.df.RCS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
+            mapping = aes(x = 5, y = 0.6, label = label), 
             inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
 
 
@@ -1261,14 +1261,7 @@ nstudies.miniIPD = length(unique(miniIPD$study))
 
 Knots.BS.MV  = list (age = c(-8.86008333, -4.39283333,0, 2.5 , 9, 13.47616667, 17.94341667))
 
-### Fit a stacked analysis for each data-set to get the model matrix
-fit.miniIPD = gam( formula =formula,
-                   family = binomial("logit"), knots = Knots.BS.MV,
-                   data = miniIPD)
 
-### Get the model matrices for each data-set
-
-X.p.miniIPD =  model.matrix(fit.miniIPD)
 
 ### Create empty matrices for the estimated splines coefficients
 
@@ -1311,14 +1304,13 @@ for( i in unique(miniIPD$study)){
 }
 rm(k,j)
 
-
-
-new.dat= data.frame(age= rep(seq(0,9,length.out = 50),each = 20),
-                    treat = rep(unique(miniIPD$treat),500), 
-                    bilat_0 =  rep(rep(unique(miniIPD$bilat_0),each=2),250),
+new.dat= data.frame(age= rep(seq(0,9,length.out = 40),each = 20),
+                    treat = rep(unique(miniIPD$treat),400), 
+                    bilat_0 =  rep(rep(unique(miniIPD$bilat_0),each=2),200),
                     study =  rep(rep(unique(miniIPD$study),each =4),50), 
-                    poutcome = rep(c(0,1),500)
+                    poutcome = rep(c(0,1),400)
 )
+
 
 
 ### Fit a stacked analysis for each data-set to get the model matrix
@@ -1371,180 +1363,59 @@ g.mvmeta.total.BS = ggplot(mvmeta.df.BS,aes(x = age, fit, linetype= treat, color
         legend.title =element_blank(),
         legend.position = "none")   + 
   geom_text(data= data.frame( label = c("b)", ""),bilat_0   = mvmeta.df.RCS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
+            mapping = aes(x = 5, y = 0.6, label = label), 
             inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
 
 g.mvmeta.total.BS
 
-##------------- Quadratic MVmeta  -----------------------------------------------------
 
-rm(list=ls()[! ls() %in% c("expit","IPDMA")]) ### To clear all
-### Ommit Little study since they don't provide bilaterality information
-miniIPD= IPDMA%>% filter((study != "Little"))
-
-### check ranges of age 
-
-
-miniIPD%>%
-  group_by(study,bilat_0)%>%
-  summarise(Min = min(age), Max= max(age))
-
-
-## The formula for all regions is the same so we save it 
-
-formula = poutcome ~  treat + bilat_0 + age+ I(age^2) +  treat*bilat_0  + treat*age + treat*I(age^2)+ age*bilat_0  + I(age^2)*bilat_0   
-
-# Number of studies in each region
-
-nstudies.miniIPD = length(unique(miniIPD$study))
-
-
-
-### Fit a stacked analysis for each data-set to get the model matrix
-fit.miniIPD = glm( formula =formula,
-                   family = binomial("logit"), 
-                   data = miniIPD)
-
-### Get the model matrices for each data-set
-
-X.p.miniIPD =  model.matrix(fit.miniIPD)
-
-### Create empty matrices for the estimated splines coefficients
-
-estimated.coefficients.miniIPD = matrix(NA,
-                                        ncol = length(fit.miniIPD$coefficients),nrow=nstudies.miniIPD,
-                                        dimnames = list( apply(expand.grid(c("Study"),c(1:nstudies.miniIPD)),1, paste, collapse=" "),
-                                                         c(1:length(fit.miniIPD$coefficients))))
-
-
-### Create empty matrices for the variance-covariance matrix of the coefficients
-
-S.miniIPD = matrix(NA, ncol=sum(c(1:length(fit.miniIPD$coefficients))), nrow = nstudies.miniIPD )
-
-k=3
-j=1
-
-for( i in unique(miniIPD$study)){
-  print(i)
-  ### Get a mini df1 with only one study
-  minidf1 = miniIPD%>%
-    filter(study == i)
-  
-  # Fit the GAM
-  fit = gam(formula = formula ,
-            #weights= weight,
-            family = binomial("logit"), 
-            data = minidf1)
-  
-  
-  ### Extract the coefficients and their standard errors for mvmeta
-  estimated.coefficients.miniIPD[j,] = fit$coefficients
-  S.miniIPD[j,] = vcov(fit)[lower.tri(vcov(fit), diag = T)]
-  
-  #mat1 <- predict.gam(fit, type = "lpmatrix")
-  
-  k=k+2
-  j=j+1
-  #rm(i,minidf1,fit)
-  
-}
-rm(k,j)
-
-
-
-
-
-#### Perform for each region a multivariate meta-analysis
-mv.fit.Quadratic.miniIPD= mvmeta(estimated.coefficients.miniIPD, S.miniIPD)
-
-prediction.interval.mvmeta.miniIPD       =  X.p.miniIPD%*% coef(mv.fit.Quadratic.miniIPD)
-
-prediction.interval.mvmeta.lower.miniIPD =  X.p.miniIPD%*% coef(mv.fit.Quadratic.miniIPD) - sqrt( rowSums(X.p.miniIPD * (X.p.miniIPD  %*% vcov(mv.fit.Quadratic.miniIPD)))) * 1.96
-
-prediction.interval.mvmeta.upper.miniIPD =  X.p.miniIPD %*% coef(mv.fit.Quadratic.miniIPD) + sqrt( rowSums(X.p.miniIPD  * (X.p.miniIPD  %*% vcov(mv.fit.Quadratic.miniIPD)))) * 1.96
-
-
-mvmeta.df.Quadratic = cbind(miniIPD[,c("study","age","treat","bilat_0")],
-                            fit =  expit(prediction.interval.mvmeta.miniIPD), 
-                            Lower= expit(prediction.interval.mvmeta.lower.miniIPD),
-                            Upper =expit(prediction.interval.mvmeta.upper.miniIPD ))
-
-
-
-g.mvmeta.total.Quadratic = ggplot(mvmeta.df.Quadratic,aes(x = age, fit, linetype= treat, color= treat)) + 
-  geom_line(size=2)+ ylim(c(0,1))+
-  ylab("")+ xlab("") + scale_color_jama()+ facet_wrap(~bilat_0)+
-  theme_bw()+ geom_ribbon(mapping = aes(ymin=Lower, ymax=Upper),alpha=0.25)+
+p1= ggplot(preds.RCS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
+  geom_ribbon(data = preds.RCS, aes(ymin = lower,ymax=upper),alpha=0.2) +
+  scale_color_jama(name= "Treatment")+ 
+  scale_linetype_discrete(name ="Treatment")+
+  ylab("Risk of developing fever afte 1 week") + 
+  xlab("Children's age")+ theme_bw()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
         plot.margin = unit(c(0,0,0,0), "cm"),
-        panel.spacing = unit(2, "lines"),
-        panel.border = element_rect(colour = "black", fill=NA, size=2),
+        panel.spacing = unit(2, "lines"),         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
-        axis.title.y = element_text(size = 30), 
+        axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
         axis.text.y = element_text(face="bold",  size=18),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
-        legend.title =element_blank(),
-        legend.position = "none")  + 
-  geom_text(data= data.frame( label = c("a)", ""),bilat_0   = mvmeta.df.Quadratic$bilat_0[c(1,3)]),
+        legend.title =element_text(size=28, hjust = 0.5),
+        legend.position = "right") + 
+  geom_text(data= data.frame( label = c("", "a)"),bilat_0   = preds.RCS$bilat_0[c(1,3)]),
             mapping = aes(x = 5, y = 0.4, label = label), 
             inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
 
+
+g.legend =  get_legend(p1)
+
+
+
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 16.png",width = 1240, height = 1680) 
 
-g.mvmeta.total.Quadratic
+grid.arrange(g.mvmeta.total.RCS, 
+             g.mvmeta.total.BS,
+             top = textGrob("", vjust = 1, gp = gpar(fontface = "bold", fontsize = 50)),
+             left = textGrob("Risk of fever after 3-7 days", rot = 90, vjust = 1, 
+                             gp = gpar(fontface = "bold", fontsize = 32)),
+             bottom = textGrob("Children's Age", vjust = -1, 
+                               gp = gpar(fontface = "bold", fontsize = 32)),
+             legend,widths=unit.c(unit(1, "npc") - legend$width, legend$width))
 
 dev.off()
-
-
-
 ## ----Absolute risk differences ---------------------------------------------------------------------------------------------------------
 ### MVmeta
 source("Assisting functions/Create risk differences.R")
 
 
-#### Create a nice data-set to make predictions and plots 
-new.dat= data.frame(age= rep(seq(0,9,length.out = 50),each = 20),
-                    treat = rep(unique(miniIPD$treat),500), 
-                    bilat_0 =  rep(rep(unique(miniIPD$bilat_0),each=2),250),
-                    study =  rep(rep(unique(miniIPD$study),each =4),50),
-                    poutcome =  rep(0:1, 500)
-)
-
-
-### Fit a stacked analysis for each data-set to get the model matrix
-fit.miniIPD.new.dat = glm( formula =formula,
-                           family = binomial("logit"), 
-                           data = new.dat)
-
-### Get the model matrices for each data-set
-
-X.p.miniIPD.new.dat =  model.matrix(fit.miniIPD.new.dat)
-
-
-
-#### Perform for each region a multivariate meta-analysis
-mv.fit.Quadratic.miniIPD = mvmeta(estimated.coefficients.miniIPD, S.miniIPD)
-
-prediction.interval.mvmeta.miniIPD.new.dat       =  X.p.miniIPD.new.dat%*% coef(mv.fit.Quadratic.miniIPD)
-
-prediction.interval.mvmeta.lower.miniIPD.new.dat =  X.p.miniIPD.new.dat%*% coef(mv.fit.Quadratic.miniIPD) - sqrt( rowSums(X.p.miniIPD.new.dat * (X.p.miniIPD.new.dat  %*% vcov(mv.fit.Quadratic.miniIPD)))) * 1.96
-
-prediction.interval.mvmeta.upper.miniIPD.new.dat =  X.p.miniIPD.new.dat %*% coef(mv.fit.Quadratic.miniIPD) + sqrt( rowSums(X.p.miniIPD.new.dat  * (X.p.miniIPD.new.dat  %*% vcov(mv.fit.Quadratic.miniIPD)))) * 1.96
-
-
-mvmeta.df.Quadratic.new.dat = cbind(new.dat[,c("study","age","treat","bilat_0")],
-                            fit =  expit(prediction.interval.mvmeta.miniIPD.new.dat), 
-                            Lower= expit(prediction.interval.mvmeta.lower.miniIPD.new.dat),
-                            Upper =expit(prediction.interval.mvmeta.upper.miniIPD.new.dat ))
-
-
-
-MV.meta_absolute_difference.Quadratic=  risk.diff.creator(dataframe = mvmeta.df.Quadratic.new.dat,
+MV.meta_absolute_difference.RCS=  risk.diff.creator(dataframe = mvmeta.df.RCS,
                                                         treatment = "treat",
                                                         matching.variables=  c("study","age","bilat_0"),
                                                         outcome= NULL, 
@@ -1552,12 +1423,42 @@ MV.meta_absolute_difference.Quadratic=  risk.diff.creator(dataframe = mvmeta.df.
                                                         predicted.CI = c("Lower","Upper"))
 
 
+MV.meta_absolute_difference.BS=  risk.diff.creator(dataframe = mvmeta.df.BS,
+                                                    treatment = "treat",
+                                                    matching.variables=  c("study","age","bilat_0"),
+                                                    outcome= NULL, 
+                                                    predicted.outcome = "fit", 
+                                                    predicted.CI = c("Lower","Upper"))
 
 
 
 
 
-MV.meta_absolute_difference.Quadratic.plot = ggplot(MV.meta_absolute_difference.Quadratic,aes(x = age, fit.diff)) +
+
+
+MV.meta_absolute_difference.RCS.plot = ggplot(MV.meta_absolute_difference.RCS,aes(x = age, fit.diff)) +
+  geom_line(size=2)+ facet_wrap(.~bilat_0)+
+  ylab("")+ xlab("") + scale_color_jama()+ 
+  theme_bw()+ 
+  geom_ribbon(mapping = aes(ymin=diff.lower, ymax=diff.upper),alpha=0.25)+
+  geom_hline(yintercept = 0, linetype=2)+ theme_minimal()+
+  theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
+        plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.spacing = unit(2, "lines"),
+        panel.border = element_rect(colour = "black", fill=NA, size=2),
+        strip.text = element_text(face="bold", size=16, hjust = 0.5),
+        axis.title.y = element_text(size = 30),
+        axis.title.x = element_text(size = 30),
+        axis.text.y = element_text(face="bold",  size=18),
+        legend.key.size = unit(1.5, "cm"),
+        legend.key.width = unit(1.5,"cm"),
+        legend.text=element_text(size=20, hjust = 0), 
+        legend.title =element_text(size=28, hjust = 0.5),
+        legend.position = "none") 
+
+MV.meta_absolute_difference.BS.plot = ggplot(MV.meta_absolute_difference.BS,aes(x = age, fit.diff)) +
   geom_line(size=2)+ facet_wrap(.~bilat_0)+
   ylab("")+ xlab("") + scale_color_jama()+ 
   theme_bw()+ 
@@ -1581,7 +1482,14 @@ MV.meta_absolute_difference.Quadratic.plot = ggplot(MV.meta_absolute_difference.
 
 
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 17.png",width = 1240, height = 1680) 
-MV.meta_absolute_difference.Quadratic.plot
+
+grid.arrange(MV.meta_absolute_difference.RCS.plot, 
+             MV.meta_absolute_difference.BS.plot,
+             top = textGrob("", vjust = 1, gp = gpar(fontface = "bold", fontsize = 50)),
+             left = textGrob("Antibiotics effect", rot = 90, vjust = 1, 
+                             gp = gpar(fontface = "bold", fontsize = 32)),
+             bottom = textGrob("Children's Age", vjust = -1, 
+                               gp = gpar(fontface = "bold", fontsize = 32)))
 dev.off()
 
 
@@ -1799,12 +1707,12 @@ g.GAMM.SS = ggplot(preds.SS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ 
             mapping = aes(x = 5, y = 0.4, label = label), 
             inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
 
-p1= ggplot(preds.RCS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
-  geom_ribbon(data = preds.RCS, aes(ymin = lower,ymax=upper),alpha=0.2) +
+p1= ggplot(preds.SS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
+  geom_ribbon(data = preds.SS, aes(ymin = lower,ymax=upper),alpha=0.2) +
   scale_color_jama(name= "Treatment")+ 
   scale_linetype_discrete(name ="Treatment")+
-  ylab("Risk of developing fever afte 1 week") + 
-  xlab("Children's age")+ theme_bw()+
+  ylab("") + 
+  xlab("")+ theme_bw()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
         axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
@@ -1817,9 +1725,8 @@ p1= ggplot(preds.RCS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_li
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
-        legend.title =element_text(size=28, hjust = 0.5),
-        legend.position = "bottom") + 
-  geom_text(data= data.frame( label = c("", "a)"),bilat_0   = preds.RCS$bilat_0[c(1,3)]),
+        legend.title =element_text(size=28, hjust = 0.5)) + 
+  geom_text(data= data.frame( label = c("", "d)"),bilat_0   = preds.SS$bilat_0[c(1,3)]),
             mapping = aes(x = 5, y = 0.4, label = label), 
             inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
 
@@ -1979,6 +1886,35 @@ g.GAMM.SS.diff = ggplot(predictions.diff.SS, aes(age,fit.diff))+ facet_wrap(~bil
                               bilat_0   = predictions.diff.RCS$bilat_0[c(1,5)]),
             mapping = aes(x = 5, y = 0.4, label = label), 
             inherit.aes = F, size = 10)
+
+
+
+p1= ggplot(preds.RCS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
+  geom_ribbon(data = preds.RCS, aes(ymin = lower,ymax=upper),alpha=0.2) +
+  scale_color_jama(name= "Treatment")+ 
+  scale_linetype_discrete(name ="Treatment")+
+  ylab("Risk of developing fever afte 1 week") + 
+  xlab("Children's age")+ theme_bw()+
+  theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
+        plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.spacing = unit(2, "lines"),         panel.border = element_rect(colour = "black", fill=NA, size=2),
+        strip.text = element_text(face="bold", size=16, hjust = 0.5),
+        axis.title.y = element_text(size = 30),
+        axis.title.x = element_text(size = 30),
+        axis.text.y = element_text(face="bold",  size=18),
+        legend.key.size = unit(1.5, "cm"),
+        legend.key.width = unit(1.5,"cm"),
+        legend.text=element_text(size=20, hjust = 0), 
+        legend.title =element_text(size=28, hjust = 0.5),
+        legend.position = "bottom") + 
+  geom_text(data= data.frame( label = c("", "a)"),bilat_0   = preds.RCS$bilat_0[c(1,3)]),
+            mapping = aes(x = 5, y = 0.4, label = label), 
+            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+
+
+g.legend =  get_legend(p1)
 
 
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 19.png",width = 1240, height = 1680)

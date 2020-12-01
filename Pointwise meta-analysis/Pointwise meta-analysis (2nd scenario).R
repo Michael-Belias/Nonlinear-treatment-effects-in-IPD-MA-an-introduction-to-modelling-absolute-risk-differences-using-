@@ -561,7 +561,7 @@ point.wise.DF.RCS.DR.diff.plot = point.wise.absolute_diff_RCS.DR%>%
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "a")+ ylim(c(-1,1))
+  annotate("text",x = 19.25,y=0.2, size = 10, label = "a")+ ylim(c(-0.8,0.3))
 
 
 
@@ -586,7 +586,7 @@ point.wise.DF.BS.DR.diff.plot=point.wise.absolute_diff_BS.DR%>%
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "b")+ ylim(c(-1,1))
+  annotate("text",x = 19.25,y=0.2, size = 10, label = "b")+ ylim(c(-0.8,0.3))
 
 
 point.wise.DF.PS.DR.diff.plot=point.wise.absolute_diff_PS.DR%>%
