@@ -91,7 +91,7 @@ source("Code for Figures, Tables, Analysis and data-simulation/Simulated dataset
 expit<-function(rs) {1/(1+exp(-rs))}
 
 ## ----Figure 2: Association between mortality risk and BMI per study in the heterogeneous IPD-set with equal BMI ranges"----
-source("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 2.R")
+source("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 2.R");simulated_plot1
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 2.png",width = 1240, height = 1680) 
 simulated_plot1
 dev.off()
@@ -1099,10 +1099,10 @@ upper=miniIPD[miniIPD$age >6,]; n.upper =  dim(upper)[1]
 rep.upper=  do.call(rbind, replicate(2, upper, simplify = FALSE)) ;  rep.upper$weight= 0.000001
 
 rep.upper$study = rep(c("Damoiseaux","Saux"), each= n.upper)
-
+miniIPD =  rbind(miniIPD, rep.upper)
 ### First we get the knots from each data-set 3 knot in 10%, 50% and 90% quantiles
 Knots.miniIPD =   list(age=quantile(miniIPD$age, probs = c(0.1,0.5,0.9))) 
-miniIPD =  rbind(miniIPD, rep.upper)
+
 
 ## The formula for all regions is the same so we save it 
 
@@ -1122,9 +1122,8 @@ fit.miniIPD = gam( formula =formula,
                    family = binomial("logit"), 
                    data = miniIPD)
 
-### Get the model matrices for each data-set
 
-X.p.miniIPD =  model.matrix(fit.miniIPD)
+
 
 ### Create empty matrices for the estimated splines coefficients
 

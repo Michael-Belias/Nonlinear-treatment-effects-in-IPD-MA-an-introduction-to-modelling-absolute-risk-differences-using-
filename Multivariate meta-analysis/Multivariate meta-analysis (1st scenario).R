@@ -55,7 +55,7 @@ for( i in unique(df1$Study)){
 
   k=k+2
   j=j+1
-  rm(i,minidf1,fit)
+  #rm(i,minidf1,fit)
 }
 rm(k,j)
 

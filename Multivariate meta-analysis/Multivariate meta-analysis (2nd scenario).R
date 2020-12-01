@@ -26,8 +26,8 @@ upper=df2[df2$BMI >39.5,]; n.upper =  dim(upper)[1]; upper$BMI = 40
 
 ## We produce 4 copies of the lower and upper data-sets and give them very small weights.
 
-rep.lower=  do.call(rbind, replicate(4, lower, simplify = FALSE)) ;  rep.lower$weight= 0.0000000001
-rep.upper=  do.call(rbind, replicate(4, upper, simplify = FALSE)) ;  rep.upper$weight= 0.0000000001
+rep.lower=  do.call(rbind, replicate(4, lower, simplify = FALSE)) ;  rep.lower$weight= 0.0000001
+rep.upper=  do.call(rbind, replicate(4, upper, simplify = FALSE)) ;  rep.upper$weight= 0.0000001
 
 ## As you can see the lower and upper data-sets use the original study information
 head(rep.lower); head(rep.upper)
@@ -69,10 +69,10 @@ nstudies.RCS.df2 = length(unique(df2$Study))
 
 ### Fit a stacked analysis in the whole data-set to get the model matrix to get the predicted outcomes later on
 
-fit.RCS.df2 = gam( formula =formula.RCS,
+fit.RCS.df2 = gam( formula=formula.RCS,
                    knots = Knots.RCS.df2,
                    family = binomial("logit"), 
-                   data = df2)
+                   data = df2[df2$weight==1,])
 
 ### Get the model matrices for each data-set
 
@@ -115,10 +115,8 @@ for( i in unique(df2$Study)){
 rm(k,j)
 
 
-table(df2$weight)
-
 #### Perform a multivariate meta-analysis
-mv.fit.RCS.df2 = mvmeta(estimated.coefficients.RCS.df2, S.RCS.df2)
+mv.fit.RCS.df2 = mvmeta(estimated.coefficients.RCS.df2, S.RCS.df2,control = list(maxiter=1000))
 
 
 prediction.interval.mvmeta.RCS.df2 =  X.p.RCS.df2 %*% coef(mv.fit.RCS.df2)
@@ -234,7 +232,7 @@ rm(k,j)
 
 
 #### Perform a multivariate meta-analysis
-mv.fit.BS.df2 = mvmeta(estimated.coefficients.BS.df2, S.BS.df2)
+mv.fit.BS.df2 = mvmeta(estimated.coefficients.BS.df2, S.BS.df2,control = list(maxiter=1000))
 
 
 prediction.interval.mvmeta.BS.df2 =  X.p.BS.df2 %*% coef(mv.fit.BS.df2)
