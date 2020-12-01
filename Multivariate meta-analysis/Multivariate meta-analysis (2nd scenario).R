@@ -54,13 +54,13 @@ rm(lower,upper, rep.lower,rep.upper)
 
 ### RCS  
 ### Define the knots position in 5%, 27.5%,  50%, 72.5% and 95% quantiles of BMI
-Knots.RCS.df2 =   list(BMI=c(21, 25, 29, 31, 33.5, 37.8)) 
+Knots.RCS.df2 =   list(BMI=quantile(df2$BMI, probs = c(0.05,0.275,0.5,0.725,0.95))) 
 
-K <- length(c(21, 25, 29, 31, 33.5, 37.8))
+
 
 ## The formula for all Studies is the same so we save it 
 
-formula.RCS = Y~ BMI + Treatment+ s(BMI,bs ="cr",fx=T,by = Treatment,k = K)
+formula.RCS = Y~ BMI + Treatment+ s(BMI,bs ="cr",fx=T,by = Treatment,k = 5)
 
 ## Number of studies
 
@@ -126,7 +126,7 @@ prediction.interval.mvmeta.lower.RCS.df2 =  X.p.RCS.df2 %*% coef(mv.fit.RCS.df2)
 prediction.interval.mvmeta.upper.RCS.df2 =  X.p.RCS.df2 %*% coef(mv.fit.RCS.df2) + sqrt( rowSums(X.p.RCS.df2  * (X.p.RCS.df2  %*% vcov(mv.fit.RCS.df2)))) * qt(0.025, dim(df2)[1] - 3)
 
 
-mvmeta.df2.RCS = cbind(df2[,c("Study","BMI","Treatment")],
+mvmeta.df2.RCS = cbind(df2[df2$weight==1,c("Study","BMI","Treatment")],
                       fit =  expit(prediction.interval.mvmeta.RCS.df2), 
                       Lower= expit(prediction.interval.mvmeta.lower.RCS.df2),
                       Upper =expit(prediction.interval.mvmeta.upper.RCS.df2 ))
@@ -176,7 +176,7 @@ nstudies.BS.df2 = length(unique(df2$Study))
 
 fit.BS.df2 = gam( formula =formula.BS,
                   family = binomial("logit"), 
-                  data = df2)
+                  data = df2[df2$weight==1,])
 
 ### Get the model matrices for each data-set
 
@@ -242,7 +242,7 @@ prediction.interval.mvmeta.lower.BS.df2 =  X.p.BS.df2 %*% coef(mv.fit.BS.df2) - 
 prediction.interval.mvmeta.upper.BS.df2 =  X.p.BS.df2 %*% coef(mv.fit.BS.df2) + sqrt( rowSums(X.p.BS.df2  * (X.p.BS.df2  %*% vcov(mv.fit.BS.df2)))) * qt(0.025, dim(df2)[1] - 3)
 
 
-mvmeta.df2.BS = cbind(df2[,c("Study","BMI","Treatment")],
+mvmeta.df2.BS = cbind(df2[df2$weight==1,c("Study","BMI","Treatment")],
                      fit =  expit(prediction.interval.mvmeta.BS.df2), 
                      Lower= expit(prediction.interval.mvmeta.lower.BS.df2),
                      Upper =expit(prediction.interval.mvmeta.upper.BS.df2 ))
