@@ -313,7 +313,7 @@ MV.meta_absolute_difference.RCS.Comb.plot = ggplot(MV.meta_absolute_difference.R
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "a")
+  annotate("text",x = 19.25,y=0.2, size = 10, label = "a")+ ylim(c(-1,1))
 
 
 MV.meta_absolute_difference.BS.Comb.plot = 
@@ -338,7 +338,7 @@ MV.meta_absolute_difference.BS.Comb.plot =
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "b")
+  annotate("text",x = 19.25,y=0.2, size = 10, label = "b")+ ylim(c(-1,1))
 
 
 MV_meta_plot_absolute_diff_Comb = grid.arrange(MV.meta_absolute_difference.RCS.Comb.plot,MV.meta_absolute_difference.BS.Comb.plot,
