@@ -63,8 +63,8 @@ pointwise.ma = function(data, clustering.variable = "Study",
       t()%>%na.omit()%>%
       as.vector()
     
-    meta1= metagen(TE= TE, seTE =seTE, method.tau = tau.method,hakn = T, adhoc.hakn = "ci" )
-    meta2= metagen(TE= TE, seTE =seTE, method.tau = tau.method,hakn = F )
+    meta1= metagen(TE= TE, seTE =seTE, method.tau = tau.method,hakn = T, adhoc.hakn = "ci", control=list(maxiter=1000)  )
+    meta2= metagen(TE= TE, seTE =seTE, method.tau = tau.method,hakn = F, control = list(maxiter=1000) )
     
     }else if(!is.null(predicted.outcome.CI)){
         lower =  data[i,]%>%

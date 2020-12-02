@@ -42,9 +42,9 @@ rep.upper$Study = rep(unique(df2$Study)[-5], each= n.upper)
 df2 =  rbind(df2, rep.lower, rep.upper)
 ## Now each study has values near the boundaries of BMI [18.5,40]
 
-df2%>%
-  group_by(Study)%>%
-  summarise(range(BMI))
+#df2%>%
+#  group_by(Study)%>%
+#  summarise(range(BMI))
 
 
 ### remove the object we don't need
@@ -148,13 +148,13 @@ g.mvmeta.total.RCS.DR = ggplot(mvmeta.df2.RCS,aes(x = BMI, fit, linetype= Treatm
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_blank(),
         legend.position = "none")  + 
-  annotate(geom = "text",x = 19.25,y = 0.8,label=  " a", size= 12 ) 
+  annotate(geom = "text",x = 19,y = 0.8,label=  " a", size= 12 ) 
 
 
 g.mvmeta.total.RCS.DR
@@ -264,13 +264,13 @@ g.mvmeta.total.BS.DR = ggplot(mvmeta.df2.BS,aes(x = BMI, fit, linetype= Treatmen
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_blank(),
         legend.position = "none")  + 
-  annotate(geom = "text",x = 19.25,y = 0.8,label=  " b", size= 12 ) 
+  annotate(geom = "text",x = 19,y = 0.8,label=  " b", size= 12 ) 
 
 
 g.mvmeta.total.BS.DR
@@ -289,13 +289,13 @@ p1=  ggplot(mvmeta.df2.BS,aes(x = BMI, fit, linetype= Treatment, color= Treatmen
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_blank(),
         legend.position = "bottom") + 
-  annotate("text",x = 19.25,y=0.9, size = 10, label = "d") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.9, size = 10, label = "d") +ylim(c(0,1))
 
 
 
@@ -357,13 +357,13 @@ MV.meta_absolute_difference.RCS.DR.plot = ggplot(MV.meta_absolute_difference.RCS
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "a")+ ylim(c(-1,1))
+  annotate("text",x = 19,y=0.2, size = 10, label = "a")+ ylim(c(-1,1))
 
 
 MV.meta_absolute_difference.BS.DR.plot = 
@@ -382,13 +382,13 @@ MV.meta_absolute_difference.BS.DR.plot =
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "b")+ ylim(c(-1,1))
+  annotate("text",x = 19,y=0.2, size = 10, label = "b")+ ylim(c(-1,1))
 
 
 MV_meta_plot_absolute_diff_DR = grid.arrange(MV.meta_absolute_difference.RCS.DR.plot,MV.meta_absolute_difference.BS.DR.plot,

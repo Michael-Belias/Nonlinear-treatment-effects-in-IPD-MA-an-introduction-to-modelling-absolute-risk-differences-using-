@@ -198,17 +198,17 @@ point.wise.DF.RCS.HT.plot = point.wise.DF.RCS.HT%>%
   xlab("")+ theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   annotate("text",x = 19.25,y=0.9, size = 10, label = "a") +ylim(c(0,1))
@@ -224,17 +224,17 @@ point.wise.DF.BS.HT.plot = point.wise.DF.BS.HT%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
   annotate("text",x = 19.25,y=0.9, size = 10, label = "b") +ylim(c(0,1))
@@ -249,17 +249,17 @@ point.wise.DF.PS.HT.plot = point.wise.DF.PS.HT%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
   annotate("text",x = 19.25,y=0.9, size = 10,label = "c") +ylim(c(0,1))
@@ -274,17 +274,17 @@ point.wise.DF.SS.HT.plot = point.wise.DF.SS.HT%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
   annotate("text",x = 19.25,y=0.9, size = 10, label = "d") +ylim(c(0,1))
@@ -293,23 +293,24 @@ point.wise.DF.SS.HT.plot = point.wise.DF.SS.HT%>%
 
 ### Pseudo-plot to get legend
 p1=  point.wise.DF.SS.HT%>%
-  ggplot(aes(x = BMI, y = RE.meta,linetype =Treatment, color = Treatment)) +geom_line(size=2)+
+  ggplot(aes(x = BMI, y = RE.meta,linetype =Treatment, color = Treatment)) +
+  geom_line(size=2)+
   geom_ribbon(aes(ymin = RE.meta.lower,ymax=RE.meta.upper),alpha=0.2) +
-  scale_color_jama( guide = FALSE)+ ylab("") + 
+  scale_color_jama()+ ylab("") + 
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0, vjust =  -15), 
         legend.title =element_blank(),
         legend.position = "bottom") +  
   annotate("text",x = 19.25,y=0.9, size = 10, label = "d") +ylim(c(0,1))
@@ -473,20 +474,20 @@ point.wise.DF.RCS.HT.diff.plot = point.wise.absolute_diff_RCS.HT%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "a")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.2, size = 10, label = "a")+ ylim(c(-0.8,0.5))
 
 point.wise.DF.BS.HT.diff.plot=point.wise.absolute_diff_BS.HT%>%
   ggplot(aes(x = BMI,RE.meta)) + geom_line(size=2)+
@@ -494,20 +495,20 @@ point.wise.DF.BS.HT.diff.plot=point.wise.absolute_diff_BS.HT%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "b")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.2, size = 10, label = "b")+ ylim(c(-0.8,0.5))
 
 
 
@@ -518,20 +519,20 @@ point.wise.DF.PS.HT.diff.plot=point.wise.absolute_diff_PS.HT%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10,label = "c")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.2, size = 10,label = "c")+ ylim(c(-0.8,0.5))
 
 
 point.wise.DF.SS.HT.diff.plot=point.wise.absolute_diff_SS.HT%>%
@@ -541,19 +542,19 @@ point.wise.DF.SS.HT.diff.plot=point.wise.absolute_diff_SS.HT%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "d")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.2, size = 10, label = "d")+ ylim(c(-0.8,0.5))
 
 

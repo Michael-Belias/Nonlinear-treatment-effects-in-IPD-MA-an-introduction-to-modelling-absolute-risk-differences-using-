@@ -71,20 +71,20 @@ g.GAMM.RCS.DR=ggplot(preds.RCS.DR, aes(BMI, expit(fit), linetype= Treatment,colo
   theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.8, size = 10, label = "a") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.8, size = 10, label = "a") +ylim(c(0,1))
 
 g.GAMM.BS.DR=ggplot(preds.BS.DR, aes(BMI, expit(fit), linetype= Treatment,color = Treatment)) + 
   geom_line(size=2) + 
@@ -93,20 +93,20 @@ g.GAMM.BS.DR=ggplot(preds.BS.DR, aes(BMI, expit(fit), linetype= Treatment,color 
   theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.8, size = 10, label = "b") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.8, size = 10, label = "b") +ylim(c(0,1))
 
 
 g.GAMM.PS.DR=ggplot(preds.PS.DR, aes(BMI, expit(fit), linetype= Treatment,color = Treatment)) + 
@@ -116,20 +116,20 @@ g.GAMM.PS.DR=ggplot(preds.PS.DR, aes(BMI, expit(fit), linetype= Treatment,color 
   theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.8, size = 10, label = "c") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.8, size = 10, label = "c") +ylim(c(0,1))
 
 
 g.GAMM.SS.DR=ggplot(preds.SS.DR, aes(BMI, expit(fit), linetype= Treatment,color = Treatment)) + 
@@ -139,20 +139,20 @@ g.GAMM.SS.DR=ggplot(preds.SS.DR, aes(BMI, expit(fit), linetype= Treatment,color 
   theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.8, size = 10, label = "d") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.8, size = 10, label = "d") +ylim(c(0,1))
 
 
 g.GAMM.DR=grid.arrange(g.GAMM.RCS.DR,g.GAMM.BS.DR,g.GAMM.PS.DR,g.GAMM.SS.DR, ncol=4,right = textGrob(label = "", vjust = -1,gp = gpar(fontsize=32)))
@@ -240,20 +240,20 @@ GAMM.DF.RCS.DR.diff.plot = absolute_diff_RCS.DR%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "a")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19,y=0.2, size = 10, label = "a")+ ylim(c(-0.8,0.3))
 
 
 
@@ -264,20 +264,20 @@ GAMM.DF.BS.DR.diff.plot=absolute_diff_BS.DR%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "b")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19,y=0.2, size = 10, label = "b")+ ylim(c(-0.8,0.3))
 
 
 GAMM.DF.PS.DR.diff.plot=absolute_diff_PS.DR%>%
@@ -287,20 +287,20 @@ GAMM.DF.PS.DR.diff.plot=absolute_diff_PS.DR%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10,label = "c")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19,y=0.2, size = 10,label = "c")+ ylim(c(-0.8,0.3))
 
 
 GAMM.DF.SS.DR.diff.plot=absolute_diff_SS.DR%>%
@@ -310,17 +310,17 @@ GAMM.DF.SS.DR.diff.plot=absolute_diff_SS.DR%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "d")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19,y=0.2, size = 10, label = "d")+ ylim(c(-0.8,0.3))

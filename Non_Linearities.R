@@ -64,6 +64,23 @@ if(!require("mvmeta")) install.packages("mvmeta")
 ## Load splines2 for splines assisting functions
 if(!require("splines2")) install.packages("splines2")
 
+newtheme <- theme_bw()+ 
+  theme(plot.title    = element_text(hjust = 0.5,size = 48,face = "bold.italic"),
+        plot.subtitle = element_text(hjust = 0.5,size = 34,face = "italic"),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.spacing = unit(2, "lines"),
+        panel.border = element_rect(colour = "black", fill=NA, size=2),
+        strip.text = element_text(face="bold", size=24, hjust = 0.5),
+        axis.text.y = element_text(face="bold",  size=32),
+        axis.title.y = element_text(size = 56),
+        axis.title.x = element_text(size = 56),
+        legend.key.size = unit(1.5, "cm"),
+        legend.key.width = unit(1.5,"cm"),
+        legend.text=element_text(size=42, hjust = 0), 
+        legend.position = "bottom",
+        legend.title=element_blank())
+
 
 
 ## ---- Simulation of the single study data-set------------------------------------------------------------------------------------------
@@ -92,6 +109,8 @@ expit<-function(rs) {1/(1+exp(-rs))}
 
 ## ----Figure 2: Association between mortality risk and BMI per study in the heterogeneous IPD-set with equal BMI ranges"----
 source("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 2.R");simulated_plot1
+
+
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 2.png",width = 1240, height = 1680) 
 simulated_plot1
 dev.off()
@@ -133,15 +152,15 @@ dev.off()
 ## ----Script for splines fitting in single study scenario----------------------------------------------------------------------------
 
 #### Clear enviroment and keep only the datasets
-rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")])
+rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df","newtheme")])
 
 
 source("Code for Figures, Tables, Analysis and data-simulation/Analysis code/Single study analysis and figures.R")
 ## Figure 6 
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 6.png",width = 1240, height = 1680) 
 grid.arrange(arrangeGrob(gRCS,gBS,gPS,gSS,
-                         bottom= textGrob(label = expression(BMI (Kg/m^2)), hjust = 0,gp = gpar(fontsize=32)), 
-                         left = textGrob(label = "Mortality risk", rot = 90, vjust = 1,gp = gpar(fontsize=32))), 
+                         bottom= textGrob(label = expression(BMI (kg/m^2)), hjust = 0,gp = gpar(fontsize=48)), 
+                         left = textGrob(label = "Mortality risk", rot = 90, vjust = 1,gp = gpar(fontsize=48))), 
              legend, heights= c(10,1))
 dev.off()
 
@@ -150,8 +169,8 @@ dev.off()
 ## Figure 7
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 7.png",width = 1240, height = 1680) 
 grid.arrange(gRCS_absolute_diff,gBS_absolute_diff,gPS_absolute_diff,gSS_absolute_diff,
-             bottom= textGrob(label = expression(BMI (Kg/m^2)), hjust = 0.35,gp = gpar(fontsize=32)), 
-             left = textGrob(label = "Treatment effect plot (absolute risk differences)", rot = 90, vjust = 1,gp = gpar(fontsize=32)))
+             bottom= textGrob(label = expression(BMI (kg/m^2)), hjust = 0.35,gp = gpar(fontsize=48)), 
+             left = textGrob(label = "Treatment effect plot (absolute risk differences)", rot = 90, vjust = 1,gp = gpar(fontsize=48)))
 dev.off()
 
 ## ----Pointwise meta-analysis---------------------------------------------------------------------------------
@@ -173,25 +192,25 @@ grid.arrange(arrangeGrob(point.wise.DF.RCS.HT.plot,
                          point.wise.DF.PS.HT.plot, 
                          point.wise.DF.SS.HT.plot, ncol=4, 
                          right= textGrob(label = "", 
-                                         vjust = -1,gp = gpar(fontsize=32))),
+                                         vjust = -1,gp = gpar(fontsize=48))),
              arrangeGrob(point.wise.DF.RCS.DR.plot, 
                          point.wise.DF.BS.DR.plot, 
                          point.wise.DF.PS.DR.plot, 
                          point.wise.DF.SS.DR.plot, ncol=4, 
                          right= textGrob(label = "", 
-                                         vjust = -1,gp = gpar(fontsize=32))),
+                                         vjust = -1,gp = gpar(fontsize=48))),
              arrangeGrob(point.wise.DF.RCS.Comb.plot, 
                          point.wise.DF.BS.Comb.plot, 
                          point.wise.DF.PS.Comb.plot, 
                          point.wise.DF.SS.Comb.plot, ncol=4, 
                          right= textGrob(label = "", 
-                                         vjust = 0,gp = gpar(fontsize=32)),
-             bottom = textGrob(label = expression(paste("BMI ", (Kg/m^2))), 
+                                         vjust = 0,gp = gpar(fontsize=48)),
+             bottom = textGrob(label = expression(paste("BMI ", (kg/m^2))), 
                                rot = 0, vjust = 0,hjust= 0.25,
-                             gp = gpar(fontsize=32))),
+                             gp = gpar(fontsize=48))),
              legend,ncol = 1, heights = c(4,4,5,1),
              left = textGrob(label = "Mortality risk", rot = 90, vjust = 1,
-                             gp = gpar(fontsize=32)))
+                             gp = gpar(fontsize=48)))
 
 dev.off()
 
@@ -213,12 +232,12 @@ grid.arrange(arrangeGrob(point.wise.DF.RCS.HT.diff.plot,
                          point.wise.DF.BS.Comb.diff.plot, 
                          point.wise.DF.PS.Comb.diff.plot, 
                          point.wise.DF.SS.Comb.diff.plot, ncol=4),
-             bottom = textGrob(label = expression(paste("BMI ", (Kg/m^2))), 
+             bottom = textGrob(label = expression(paste("BMI ", (kg/m^2))), 
                                rot = 0, vjust = 0,hjust = 0.25,
-                             gp = gpar(fontsize=32)),
+                             gp = gpar(fontsize=48)),
              left = textGrob(label = "Treatment effect (Absolute risk difference)",
                              rot = 90, vjust = 1,
-                             gp = gpar(fontsize=32)))
+                             gp = gpar(fontsize=48)))
 
 dev.off()
 
@@ -239,13 +258,17 @@ png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/F
 
 grid.arrange(arrangeGrob(g.mvmeta.total.RCS, 
                          g.mvmeta.total.BS, 
-                         g.mvmeta.total.RCS.DR, g.mvmeta.total.BS.DR,g.mvmeta.total.RCS.Comb, g.mvmeta.total.BS.Comb),
-             bottom = textGrob(label = expression(paste("BMI ", (Kg/m^2))), 
-                               rot = 0, vjust = 0,hjust = 0.25,
-                               gp = gpar(fontsize=32)),
-             left = textGrob(label = "Mortality risk",
-                             rot = 90, vjust = 1,
-                             gp = gpar(fontsize=32)))
+                         g.mvmeta.total.RCS.DR, 
+                         g.mvmeta.total.BS.DR,
+                         g.mvmeta.total.RCS.Comb, 
+                         g.mvmeta.total.BS.Comb,
+                         bottom = textGrob(label = expression(paste("BMI ", (kg/m^2))), 
+                                           rot = 0, vjust = 0,hjust = 0.25,
+                                           gp = gpar(fontsize=48)),
+                         left = textGrob(label = "Mortality risk",
+                                         rot = 90, vjust = 1,
+                                         gp = gpar(fontsize=48))),
+             legend, heights= c(10,1))
 
 dev.off()
 
@@ -256,13 +279,13 @@ png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/F
 
 grid.arrange(arrangeGrob(MV.meta_absolute_difference.RCS.HT.plot,MV.meta_absolute_difference.BS.HT.plot,
                          MV.meta_absolute_difference.RCS.DR.plot, MV.meta_absolute_difference.BS.DR.plot, 
-                         MV.meta_absolute_difference.RCS.Comb.plot, MV.meta_absolute_difference.BS.Comb.plot),
-             bottom = textGrob(label = expression(paste("BMI ", (Kg/m^2))), 
-                               rot = 0, vjust = 0,hjust = 0.25,
-                               gp = gpar(fontsize=32)),
-             left = textGrob(label = "Treatment effect (Absolute risk difference)",
-                             rot = 90, vjust = 1,
-                             gp = gpar(fontsize=32)))
+                         MV.meta_absolute_difference.RCS.Comb.plot, MV.meta_absolute_difference.BS.Comb.plot,
+                         bottom = textGrob(label = expression(paste("BMI ", (kg/m^2))), 
+                                           rot = 0, vjust = 0,hjust = 0.25,
+                                           gp = gpar(fontsize=48)),
+                         left = textGrob(label = "Treatment effect (Absolute risk difference)",
+                                         rot = 90, vjust = 1,
+                                         gp = gpar(fontsize=48))))
 dev.off()
 
 ### Clear enviroment 
@@ -281,9 +304,9 @@ source("GAMM/GAMM (3rd scenario).R")
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 12.png",width = 1240, height = 1680) 
 
 grid.arrange(arrangeGrob(g.GAMM.HT,g.GAMM.DR,g.GAMM.Combined, ncol=1,
-                         bottom= textGrob(label = expression(paste("BMI ", (Kg/m^2))), vjust=0.35,
-                                          hjust = 0.35,gp = gpar(fontsize=32)), 
-                         left = textGrob(label = "Mortality risk", rot = 90, vjust = 1,gp = gpar(fontsize=32))), heights =c(12,1), g.legend)
+                         bottom= textGrob(label = expression(paste("BMI ", (kg/m^2))), vjust=0.35,
+                                          hjust = 0.35,gp = gpar(fontsize=48)), 
+                         left = textGrob(label = "Mortality risk", rot = 90, vjust = 1,gp = gpar(fontsize=48))), heights =c(12,1), g.legend)
 
 
 dev.off()
@@ -306,9 +329,9 @@ grid.arrange(arrangeGrob(GAMM.DF.RCS.HT.diff.plot,
                          GAMM.DF.BS.Comb.diff.plot, 
                          GAMM.DF.PS.Comb.diff.plot, 
                          GAMM.DF.SS.Comb.diff.plot, ncol=4),
-             bottom= textGrob(label = expression(paste("BMI ", (Kg/m^2))), 
-                              hjust = 0,gp = gpar(fontsize=32)), 
-             left = textGrob(label = "Treatment effect (Absolute risk difference)", rot = 90, vjust = 1,gp = gpar(fontsize=32)))
+             bottom= textGrob(label = expression(paste("BMI ", (kg/m^2))), 
+                              hjust = 0,gp = gpar(fontsize=48)), 
+             left = textGrob(label = "Treatment effect (Absolute risk difference)", rot = 90, vjust = 1,gp = gpar(fontsize=48)))
 
 dev.off()
 
@@ -324,7 +347,7 @@ IPDMA[IPDMA == "NaN"] = NA
 names(IPDMA) <- tolower(names(IPDMA))
 IPDMA$treat =  factor(IPDMA$treat  , labels = c("Placebo","Antibiotics") )
 IPDMA$study = factor(IPDMA$study, labels = c("Damoiseaux","Burke","Appelman","Little","Saux","McCormick"))
-IPDMA$bilat_0 =  factor(IPDMA$bilat_0  , labels = c("No","Yes") )
+IPDMA$bilat_0 =  factor(IPDMA$bilat_0  , labels = c("Unilateral","Bilateral") )
 
 IPDMA =  IPDMA[which(IPDMA$age<=9),]
 
@@ -377,7 +400,7 @@ rm(c)
 source("Assisting functions/Point-wise meta-analysis.R")
 
 
-### Ommit Damoiseaux and Burke since they have only 4 and 7 levels in the age variable
+### Ommit Appelman due to limited number of events
 miniIPD.splines= miniIPD%>% filter((  study != "Appelman"))
 miniIPD.linear= miniIPD%>% filter((   study == "Appelman"))
 
@@ -493,7 +516,7 @@ ggplot( aes(age,expit(.fitted), color= treat) ) +
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
@@ -527,7 +550,7 @@ predictions.BS[predictions.BS$study != "Appelman",]%>%
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
@@ -559,7 +582,7 @@ predictions.PS[predictions.PS$study != "Appelman",]%>%
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
@@ -593,7 +616,7 @@ predictions.SS[predictions.SS$study != "Appelman",]%>%
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
@@ -674,47 +697,48 @@ point.wise.DF.RCS.plot = point.wise.DF.RCS%>%
   xlab("")+  theme_minimal()+  theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "a)"),bilat_0   = point.wise.DF.RCS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("a", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
+            mapping = aes(x=0, y = 0.4, label = label), 
+            inherit.aes = F, hjust   = -0.1,vjust   = -1, size=18)
 
 
 
 p1=  ggplot(point.wise.DF.RCS,aes(x = age, y = RE.meta, linetype =treat, color = treat))+ 
   facet_wrap(~bilat_0) +geom_line()+
   geom_ribbon(aes(ymin = RE.meta.lower,ymax=RE.meta.upper),alpha=0.2) +
-  scale_color_jama(name= "Treatment", guide = FALSE)+ 
-  scale_linetype_discrete(name ="Treatment")+ylab("Risk of fever") + 
+  scale_color_jama()+ 
+  scale_linetype_discrete()+ylab("Risk of fever") + 
   xlab("Children's age")+  theme_minimal()+  theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
-        legend.title =element_text(size=28, hjust = 0.5))
+        legend.text=element_text(size=28, hjust = 0), 
+        legend.title =element_blank(), 
+        legend.position = "bottom")
 
-
+p1
 legend = gtable_filter(ggplotGrob(p1), "guide-box") 
 
 
@@ -726,22 +750,22 @@ point.wise.DF.BS.plot = point.wise.DF.BS%>%
   xlab("")+  theme_minimal()+  theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "b)"),bilat_0   = point.wise.DF.BS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("b", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
+            mapping = aes(x=0, y = 0.4, label = label), 
+            inherit.aes = F, hjust   = -0.1,vjust   = -1, size=18)
 
 
 point.wise.DF.PS.plot = point.wise.DF.PS%>%
@@ -752,22 +776,22 @@ point.wise.DF.PS.plot = point.wise.DF.PS%>%
   xlab("")+  theme_minimal()+  theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "c)"),bilat_0   = point.wise.DF.PS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("c", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
+            mapping = aes(x=0, y = 0.4, label = label), 
+            inherit.aes = F, hjust   = -0.1,vjust   = -1, size=18)
 
 
 
@@ -779,22 +803,22 @@ point.wise.DF.SS.plot = point.wise.DF.SS%>%
   xlab("")+  theme_minimal()+  theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none")+ 
-  geom_text(data= data.frame( label = c("", "d)"),bilat_0   = point.wise.DF.SS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("d", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
+            mapping = aes(x=0, y = 0.4, label = label), 
+            inherit.aes = F, hjust   = -0.1,vjust   = -1, size=18)
   
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 14.png",width = 1240, height = 1680) 
 
@@ -802,9 +826,9 @@ grid.arrange(arrangeGrob(point.wise.DF.RCS.plot, point.wise.DF.BS.plot, point.wi
                          top = textGrob("", vjust = 1, gp = gpar(fontface = "bold", fontsize = 50)),
                          left = textGrob("Risk of fever after 3-7 days", rot = 90, vjust = 1, 
                                          gp = gpar(fontface = "bold", fontsize = 32)),
-                         bottom = textGrob("Children's Age", vjust = -1, 
+                         bottom = textGrob("Children's Age", vjust = 0,hjust=0.5, 
                                            gp = gpar(fontface = "bold", fontsize = 32))),
-             legend,widths=unit.c(unit(1, "npc") - legend$width, legend$width))
+             legend, heights=  c(10,1))
 
 dev.off()
 
@@ -954,6 +978,7 @@ point.wise.absolute_diff_SS.Empirical =  point.wise.absolute_diff_SS.Empirical%>
 point.wise.absolute_diff_RCS.Empirical.plot = point.wise.absolute_diff_RCS.Empirical%>%
   ggplot(aes(x = age, y = RE.meta))+ facet_wrap(~bilat_0) +geom_line()+
   geom_ribbon(aes(ymin = RE.meta.lower,ymax=RE.meta.upper),alpha=0.2) +
+  geom_hline(yintercept = 0, linetype=2)+ 
   scale_color_jama(name= "Treatment", guide = FALSE)+ 
   scale_linetype_discrete(name ="Treatment")+ylab("") + 
   xlab("")+theme_minimal()+  theme_bw()+ 
@@ -966,21 +991,21 @@ point.wise.absolute_diff_RCS.Empirical.plot = point.wise.absolute_diff_RCS.Empir
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         axis.text.x=element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "a)"),bilat_0   = point.wise.absolute_diff_RCS.Empirical$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("a", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.4, label = label), size=18)+ ylim(c(-0.8,0.8))
 point.wise.absolute_diff_RCS.Empirical.plot
 
 point.wise.absolute_diff_BS.Empirical.plot = point.wise.absolute_diff_BS.Empirical%>%
   ggplot(aes(x = age, y = RE.meta))+ facet_wrap(~bilat_0) +geom_line()+
   geom_ribbon(aes(ymin = RE.meta.lower,ymax=RE.meta.upper),alpha=0.2) +
+  geom_hline(yintercept = 0, linetype=2)+ 
   scale_color_jama(name= "Treatment", guide = FALSE)+ 
   scale_linetype_discrete(name ="Treatment")+ylab("") + 
   xlab("")+theme_minimal()+  theme_bw()+ 
@@ -993,21 +1018,21 @@ point.wise.absolute_diff_BS.Empirical.plot = point.wise.absolute_diff_BS.Empiric
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         axis.text.x=element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "b)"),bilat_0   = point.wise.absolute_diff_BS.Empirical$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("b", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.4, label = label),  size=18)+ ylim(c(-0.8,0.8))
 
 
 point.wise.absolute_diff_PS.Empirical.plot = point.wise.absolute_diff_PS.Empirical%>%
   ggplot(aes(x = age, y = RE.meta))+ facet_wrap(~bilat_0) +geom_line()+
   geom_ribbon(aes(ymin = RE.meta.lower,ymax=RE.meta.upper),alpha=0.2) +
+  geom_hline(yintercept = 0, linetype=2)+ 
   scale_color_jama(name= "Treatment", guide = FALSE)+ 
   scale_linetype_discrete(name ="Treatment")+ylab("") + 
   xlab("")+theme_minimal()+  theme_bw()+ 
@@ -1020,22 +1045,22 @@ point.wise.absolute_diff_PS.Empirical.plot = point.wise.absolute_diff_PS.Empiric
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         axis.text.x=element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "c)"),bilat_0   = point.wise.absolute_diff_PS.Empirical$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("c", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.4, label = label), size=18)+ ylim(c(-0.8,0.8))
 
 
 
 point.wise.absolute_diff_SS.Empirical.plot = point.wise.absolute_diff_SS.Empirical%>%
   ggplot(aes(x = age, y = RE.meta))+ facet_wrap(~bilat_0) +geom_line()+
   geom_ribbon(aes(ymin = RE.meta.lower,ymax=RE.meta.upper),alpha=0.2) +
+  geom_hline(yintercept = 0, linetype=2)+ 
   scale_color_jama(name= "Treatment", guide = FALSE)+ 
   scale_linetype_discrete(name ="Treatment")+ylab("") + 
   xlab("")+theme_minimal()+  theme_bw()+ 
@@ -1048,16 +1073,15 @@ point.wise.absolute_diff_SS.Empirical.plot = point.wise.absolute_diff_SS.Empiric
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         axis.text.x=element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "d)"),bilat_0   = point.wise.absolute_diff_SS.Empirical$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("d", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.4, label = label), size=18)+ ylim(c(-0.8,0.8))
 
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 15.png",width = 1240, height = 1680) 
 
@@ -1068,7 +1092,7 @@ grid.arrange(point.wise.absolute_diff_RCS.Empirical.plot,
              top = textGrob("", vjust = 1, gp = gpar(fontface = "bold", fontsize = 50)),
              left = textGrob("Antibiotics effect", rot = 90, vjust = 1, 
                              gp = gpar(fontface = "bold", fontsize = 32)),
-             bottom = textGrob("Children's Age", vjust = -1, 
+             bottom = textGrob("Children's Age", vjust = 0, 
                                gp = gpar(fontface = "bold", fontsize = 32)))
 
 dev.off()
@@ -1223,24 +1247,21 @@ g.mvmeta.total.RCS = ggplot(mvmeta.df.RCS,aes(x = age, fit, linetype= treat, col
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_blank(),
         legend.position = "none")  + 
-  geom_text(data= data.frame( label = c("a)", ""),bilat_0   = mvmeta.df.RCS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.6, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("a", ""),bilat_0   = levels(mvmeta.df.RCS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.6, label = label), 
+            inherit.aes = F,size=18)
 
 
 g.mvmeta.total.RCS
-###########
-
-
 
 ########### B-splines    indicator
-###########
+
 
 
 ### First we get the knots from each data-set 3 inner equidistant knots and 6 outer (3 on both sides of the boundaries) 
@@ -1258,9 +1279,13 @@ formula = poutcome ~  treat+ bilat_0 + treat*bilat_0  +
 
 nstudies.miniIPD = length(unique(miniIPD$study))
 
-Knots.BS.MV  = list (age = c(-8.86008333, -4.39283333,0, 2.5 , 9, 13.47616667, 17.94341667))
+Knots.BS.MV  = list (age = c(-9, -4, 0, 2.5 , 9.2, 13.5, 18))
 
-
+### Fit a stacked analysis for each data-set to get the model matrix
+fit.miniIPD = gam( formula =formula,
+                   knots = Knots.BS.MV,
+                   family = binomial("logit"), 
+                   data = miniIPD)
 
 ### Create empty matrices for the estimated splines coefficients
 
@@ -1287,7 +1312,9 @@ for( i in unique(miniIPD$study)){
     filter(study == i)
   
   # Fit the GAM
-  fit = gam(formula = formula ,weights = weight,knots = Knots.BS.MV,
+  fit = gam(formula = formula ,
+            weights = weight,
+            knots = Knots.BS.MV,
             family = binomial("logit"), data = minidf1)
   
   
@@ -1355,15 +1382,15 @@ g.mvmeta.total.BS = ggplot(mvmeta.df.BS,aes(x = age, fit, linetype= treat, color
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_blank(),
         legend.position = "none")   + 
-  geom_text(data= data.frame( label = c("b)", ""),bilat_0   = mvmeta.df.RCS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.6, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("b", ""),bilat_0   = levels(mvmeta.df.RCS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.6, label = label), 
+            inherit.aes = F, size=18)
 
 g.mvmeta.total.BS
 
@@ -1381,15 +1408,15 @@ p1= ggplot(mvmeta.df.BS,aes(x = age, fit, linetype= treat, color= treat)) +
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_blank(),
-        legend.position = "right") + 
-  geom_text(data= data.frame( label = c("", "a)"),bilat_0   = mvmeta.df.BS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+        legend.position = "bottom") + 
+  geom_text(data= data.frame( label = c("", "a"),bilat_0   = mvmeta.df.BS$bilat_0[c(1,3)]),
+            mapping = aes(x=0.3, y = 0.4, label = label), 
+            inherit.aes = F, hjust   = -0.1,vjust   = -15, size=18)
 
 
 g.legend =  get_legend(p1)
@@ -1398,14 +1425,14 @@ g.legend =  get_legend(p1)
 
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 16.png",width = 1240, height = 1680) 
 
-grid.arrange(g.mvmeta.total.RCS, 
+grid.arrange(arrangeGrob(g.mvmeta.total.RCS, 
              g.mvmeta.total.BS,
              top = textGrob("", vjust = 1, gp = gpar(fontface = "bold", fontsize = 50)),
              left = textGrob("Risk of fever after 3-7 days", rot = 90, vjust = 1, 
                              gp = gpar(fontface = "bold", fontsize = 32)),
-             bottom = textGrob("Children's Age", vjust = -1, 
-                               gp = gpar(fontface = "bold", fontsize = 32)),
-             legend,widths=unit.c(unit(1, "npc") - legend$width, legend$width))
+             bottom = textGrob("Children's Age", vjust = 0, 
+                               gp = gpar(fontface = "bold", fontsize = 32))),
+             g.legend, heights=  c(10,1))
 
 dev.off()
 ## ----Absolute risk differences ---------------------------------------------------------------------------------------------------------
@@ -1442,19 +1469,22 @@ MV.meta_absolute_difference.RCS.plot = ggplot(MV.meta_absolute_difference.RCS,ae
   geom_hline(yintercept = 0, linetype=2)+ theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
-        legend.position = "none") 
+        legend.position = "none") + 
+  geom_text(data= data.frame( label = c("a", ""),bilat_0   = levels(MV.meta_absolute_difference.RCS$bilat_0)),
+            mapping = aes(x=0.3,  y = 0.4, label = label), 
+            inherit.aes = F,  size=18)+ ylim(c(-0.8,0.8))
 
 MV.meta_absolute_difference.BS.plot = ggplot(MV.meta_absolute_difference.BS,aes(x = age, fit.diff)) +
   geom_line(size=2)+ facet_wrap(.~bilat_0)+
@@ -1464,19 +1494,22 @@ MV.meta_absolute_difference.BS.plot = ggplot(MV.meta_absolute_difference.BS,aes(
   geom_hline(yintercept = 0, linetype=2)+ theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
-        legend.position = "none") 
+        legend.position = "none") + 
+  geom_text(data= data.frame( label = c("b", ""),bilat_0   = levels(MV.meta_absolute_difference.RCS$bilat_0)),
+            mapping = aes(x=0.3,  y = 0.4, label = label), 
+            inherit.aes = F,  size=18)+ ylim(c(-0.8,0.8))
 
 
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 17.png",width = 1240, height = 1680) 
@@ -1501,7 +1534,7 @@ miniIPD= IPDMA%>% filter((study != "Little"))
 # make the bilat variable a factor for graphs. 
 miniIPD$bilat_0 =  factor(miniIPD$bilat_0 , labels = c("Unilateral","Bilateral") )
 Knots.RCS = list (age = quantile(IPDMA$age , probs = c(0.1,0.5,0.9)))
-Knots.BS  = list (age = c(-12.65556,-6.32778,0, 6.32778 , 12.65556, 18.98334, 25.31112))
+Knots.BS  = list (age = c(-9.2, -4.6,  0,  4.6,  9.2, 13.7, 18.3))
 
 
 fit.RCS <- gam(formula = poutcome ~  treat * bilat_0  + 
@@ -1523,8 +1556,8 @@ fit.BS <- gam(formula = poutcome ~  treat * bilat_0  +
                 s(age,by =  as.numeric(study),  bs="re")+
                 s(treat,by = bilat_0, bs= "fs")+
                 s(treat,by =  as.numeric(study),  bs="re")+
-                s(bilat_0,by =  as.numeric(study),  bs="re"), 
-              family = binomial("logit"), data = miniIPD,
+                s(bilat_0,by =  as.numeric(study),  bs="re"),
+              family = binomial("logit"), data = miniIPD,knots = Knots.BS,
               method="REML")
 
 fit.PS <- gam(formula = poutcome ~ treat * bilat_0  + 
@@ -1614,21 +1647,21 @@ g.GAMM.RCS = ggplot(preds.RCS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)
   xlab("")+ theme_bw()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "a)"),bilat_0   = preds.RCS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("a", ""),bilat_0   = levels(preds.RCS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.4, label = label), 
+            inherit.aes = F, size=18)
 
 
 g.GAMM.BS = ggplot(preds.BS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
@@ -1639,21 +1672,21 @@ g.GAMM.BS = ggplot(preds.BS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ 
   xlab("")+ theme_bw()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "b)"),bilat_0   = preds.BS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("b", ""),bilat_0   = levels(preds.RCS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.4, label = label), 
+            inherit.aes = F,size=18)
 
 
 g.GAMM.PS =ggplot(preds.PS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
@@ -1664,21 +1697,21 @@ g.GAMM.PS =ggplot(preds.PS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ g
   xlab("")+ theme_bw()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "c)"),bilat_0   = preds.PS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("c", ""),bilat_0   = levels(preds.RCS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.4, label = label), 
+            inherit.aes = F, size=18)
 
 
 g.GAMM.SS = ggplot(preds.SS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
@@ -1689,21 +1722,21 @@ g.GAMM.SS = ggplot(preds.SS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ 
   xlab("")+ theme_bw()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "d)"),bilat_0   = preds.SS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+  geom_text(data= data.frame( label = c("d", ""),bilat_0   = levels(preds.RCS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.4, label = label), 
+            inherit.aes = F, size=18)
 
 p1= ggplot(preds.SS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
   geom_ribbon(data = preds.SS, aes(ymin = lower,ymax=upper),alpha=0.2) +
@@ -1713,22 +1746,23 @@ p1= ggplot(preds.SS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_lin
   xlab("")+ theme_bw()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
-        legend.title =element_text(size=28, hjust = 0.5)) + 
-  geom_text(data= data.frame( label = c("", "d)"),bilat_0   = preds.SS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
+        legend.title =element_blank(),
+        legend.position = "bottom") + 
+  geom_text(data= data.frame( label = c("", "d"),bilat_0   = preds.SS$bilat_0[c(1,3)]),
+            mapping = aes(x=0.3, y = 0.4, label = label), 
+            inherit.aes = F,  size=18)
 
-
+p1
 g.legend =  get_legend(p1)
 
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 18.png",width = 1240, height = 1680) 
@@ -1736,12 +1770,12 @@ g.GAMM=grid.arrange(arrangeGrob(
   g.GAMM.RCS,
   g.GAMM.BS,
   g.GAMM.PS,
-  g.GAMM.SS, ncol=2),
-  g.legend ,ncol=1,heights = c(10,1),
+  g.GAMM.SS, ncol=2,
   left = textGrob(label = "Risk of developing fever after 1 week",
-                  rot = 90,vjust = 0.5,gp = gpar(fontsize=32)),
+                  rot = 90,vjust = 0.5,gp = gpar(fontsize=48)),
   bottom = textGrob(label = "Children's age", 
-                    vjust = 0,gp = gpar(fontsize=32)))
+                    vjust = 0,gp = gpar(fontsize=48))),
+  g.legend ,heights = c(10,1))
 
 dev.off()
 
@@ -1788,22 +1822,22 @@ g.GAMM.RCS.diff = ggplot(predictions.diff.RCS, aes(age,fit.diff))+ facet_wrap(~b
   xlab("")+ theme_bw()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "a)"),
-                              bilat_0   = predictions.diff.RCS$bilat_0[c(1,5)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, size = 10)
+  geom_text(data= data.frame( label = c("a", ""),
+                              bilat_0   = levels(predictions.diff.RCS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.4, label = label), 
+            inherit.aes = F, size=18)+ ylim(c(-0.8,0.8))
 
 
 g.GAMM.BS.diff = ggplot(predictions.diff.BS, aes(age,fit.diff))+ facet_wrap(~bilat_0)+ geom_line()+geom_hline(yintercept = 0,linetype=2)+
@@ -1814,22 +1848,22 @@ g.GAMM.BS.diff = ggplot(predictions.diff.BS, aes(age,fit.diff))+ facet_wrap(~bil
   xlab("")+ theme_bw()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "b)"),
-                              bilat_0   = predictions.diff.RCS$bilat_0[c(1,5)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, size = 10)
+  geom_text(data= data.frame( label = c("b", ""),
+                              bilat_0   = levels(predictions.diff.RCS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.4, label = label), 
+            inherit.aes = F, size=18)+ ylim(c(-0.8,0.8))
 
 
 
@@ -1841,22 +1875,23 @@ g.GAMM.PS.diff = ggplot(predictions.diff.PS, aes(age,fit.diff))+ facet_wrap(~bil
   xlab("")+ theme_bw()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "c)"),
-                              bilat_0   = predictions.diff.RCS$bilat_0[c(1,5)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, size = 10)
+  geom_text(data= data.frame( label = c("c", ""),
+                              bilat_0   = levels(predictions.diff.RCS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.4, label = label), 
+            inherit.aes = F, size=18)+ ylim(c(-0.8,0.8))
+
 
 
 
@@ -1868,51 +1903,26 @@ g.GAMM.SS.diff = ggplot(predictions.diff.SS, aes(age,fit.diff))+ facet_wrap(~bil
   xlab("")+ theme_bw()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=20, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  geom_text(data= data.frame( label = c("", "d)"),
-                              bilat_0   = predictions.diff.RCS$bilat_0[c(1,5)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, size = 10)
+  geom_text(data= data.frame( label = c("d", ""),
+                              bilat_0   = levels(predictions.diff.RCS$bilat_0)),
+            mapping = aes(x=0.3, y = 0.4, label = label), 
+            inherit.aes = F, size=18)+ ylim(c(-0.8,0.8))
 
 
 
-p1= ggplot(preds.RCS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
-  geom_ribbon(data = preds.RCS, aes(ymin = lower,ymax=upper),alpha=0.2) +
-  scale_color_jama(name= "Treatment")+ 
-  scale_linetype_discrete(name ="Treatment")+
-  ylab("Risk of developing fever afte 1 week") + 
-  xlab("Children's age")+ theme_bw()+
-  theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
-        plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
-        plot.margin = unit(c(0,0,0,0), "cm"),
-        panel.spacing = unit(2, "lines"),         panel.border = element_rect(colour = "black", fill=NA, size=2),
-        strip.text = element_text(face="bold", size=16, hjust = 0.5),
-        axis.title.y = element_text(size = 30),
-        axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
-        legend.key.size = unit(1.5, "cm"),
-        legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
-        legend.title =element_text(size=28, hjust = 0.5),
-        legend.position = "bottom") + 
-  geom_text(data= data.frame( label = c("", "a)"),bilat_0   = preds.RCS$bilat_0[c(1,3)]),
-            mapping = aes(x = 5, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size = 10)
 
-
-g.legend =  get_legend(p1)
 
 
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 19.png",width = 1240, height = 1680)
@@ -1922,9 +1932,9 @@ g.GAMM.diff =grid.arrange(
   g.GAMM.PS.diff,
   g.GAMM.SS.diff, ncol=2,
   left = textGrob(label = "Antibiotics effect",
-                  rot = 90,vjust = 0.5,gp = gpar(fontsize=32)),
+                  rot = 90,vjust = 0.5,gp = gpar(fontsize=48)),
   bottom = textGrob(label = "Children's age", 
-                    vjust = 0,gp = gpar(fontsize=32)))
+                    vjust = 0,gp = gpar(fontsize=48)))
 
 dev.off()
 

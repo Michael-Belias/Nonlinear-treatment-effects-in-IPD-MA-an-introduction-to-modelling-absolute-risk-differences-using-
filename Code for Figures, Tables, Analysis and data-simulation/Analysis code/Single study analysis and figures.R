@@ -128,20 +128,20 @@ gRCS= ggplot(preds.RCS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
   geom_vline(xintercept = fit.RCS$smooth[[1]]$xp, linetype =2)+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.9, size = 10, label = "a") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.9, size = 10, label = "a") +ylim(c(0,1))
 
 
 ### Calculate the number of knots
@@ -155,20 +155,20 @@ gBS= ggplot(preds.BS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
   geom_vline(xintercept = fit.BS$smooth[[1]]$knots[-c(1:2,(n-1):n)], linetype =2)+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.9, size = 10, label = "b") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.9, size = 10, label = "b") +ylim(c(0,1))
 
 ### Calculate the number of knots
 n= length(fit.PS$smooth[[1]]$knots)
@@ -182,20 +182,20 @@ gPS= ggplot(preds.PS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
   geom_vline(xintercept = fit.PS$smooth[[1]]$knots[-c(1:3,(n-2):n)], linetype =2) +
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.9, size = 10, label = "c") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.9, size = 10, label = "c") +ylim(c(0,1))
 
 ### Draw the Smoothing spline plot
 gSS= ggplot(preds.SS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
@@ -205,20 +205,20 @@ gSS= ggplot(preds.SS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
   theme_bw()+ geom_ribbon(mapping = aes(ymin=Lower, ymax=Upper),alpha=0.15)+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.9, size = 10, label = "d") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.9, size = 10, label = "d") +ylim(c(0,1))
 
 ### Create an pseudo plot to get the legend 
 p1=  ggplot(preds.SS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
@@ -228,20 +228,20 @@ p1=  ggplot(preds.SS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
   theme_bw()+ geom_ribbon(mapping = aes(ymin=Lower, ymax=Upper),alpha=0.15)+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_blank(),
         legend.position = "bottom") + 
-  annotate("text",x = 19.25,y=0.9, size = 10, label = "d") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.9, size = 10, label = "d") +ylim(c(0,1))
 
 ### Get the legend from the pseudo-plot 
 legend = gtable_filter(ggplotGrob(p1), "guide-box") 
@@ -251,7 +251,7 @@ legend = gtable_filter(ggplotGrob(p1), "guide-box")
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 6.png",width = 1240, height = 1680) 
 ##### Plot all the plots in a grid
 grid.arrange(arrangeGrob(gRCS,gBS,gPS,gSS,
-                         bottom= textGrob(label = expression(BMI (Kg/m^2)), hjust = 0,gp = gpar(fontsize=32)), 
+                         bottom= textGrob(label = expression(BMI (kg/m^2)), hjust = 0,gp = gpar(fontsize=32)), 
                          left = textGrob(label = "Mortality risk", rot = 90, vjust = 1,gp = gpar(fontsize=32))), 
              legend, heights= c(10,1))
 dev.off()
@@ -306,20 +306,20 @@ gRCS_absolute_diff= ggplot(absolute_diff_RCS,aes(x = BMI, fit.diff)) +geom_line(
   geom_vline(xintercept = fit.RCS$smooth[[1]]$xp, linetype =2)+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.4, size = 10, label = "a") + ylim(c(-0.8,0.5))
+  annotate("text",x = 19,y=0.4, size = 10, label = "a") + ylim(c(-0.8,0.5))
 
 n= length(fit.BS$smooth[[1]]$knots)
 
@@ -331,20 +331,20 @@ gBS_absolute_diff= ggplot(absolute_diff_BS,aes(x = BMI, fit.diff))+geom_line()+
   geom_vline(xintercept = fit.BS$smooth[[1]]$knots[-c(1:3,(n-2):n)], linetype =2)+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.4, size = 10, label = "b")  + ylim(c(-0.8,0.5))
+  annotate("text",x = 19,y=0.4, size = 10, label = "b")  + ylim(c(-0.8,0.5))
 
 n= length(fit.PS$smooth[[1]]$knots)
 gPS_absolute_diff= ggplot(absolute_diff_PS,aes(x = BMI, fit.diff)) +geom_line()+ 
@@ -355,20 +355,20 @@ gPS_absolute_diff= ggplot(absolute_diff_PS,aes(x = BMI, fit.diff)) +geom_line()+
   theme_bw()+ geom_ribbon(mapping = aes(ymin=diff.lower, ymax=diff.upper),alpha=0.15)+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.4, size = 10, label = "c")  + ylim(c(-0.8,0.5))
+  annotate("text",x = 19,y=0.4, size = 10, label = "c")  + ylim(c(-0.8,0.5))
 
 
 gSS_absolute_diff= ggplot(absolute_diff_SS,aes(x = BMI, fit.diff)) +geom_line()+ 
@@ -378,20 +378,20 @@ gSS_absolute_diff= ggplot(absolute_diff_SS,aes(x = BMI, fit.diff)) +geom_line()+
   theme_bw()+ geom_ribbon(mapping = aes(ymin=diff.lower, ymax=diff.upper),alpha=0.15)+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.4, size = 10, label = "d")  + ylim(c(-0.8,0.5))
+  annotate("text",x = 19,y=0.4, size = 10, label = "d")  + ylim(c(-0.8,0.5))
 
 
 
@@ -402,7 +402,7 @@ gSS_absolute_diff= ggplot(absolute_diff_SS,aes(x = BMI, fit.diff)) +geom_line()+
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 7.png",width = 1240, height = 1680) 
 ##### Plot all the plots in a grid
 grid.arrange(gRCS_absolute_diff,gBS_absolute_diff,gPS_absolute_diff,gSS_absolute_diff,
-            bottom= textGrob(label = expression(BMI (Kg/m^2)), hjust = 0.35,gp = gpar(fontsize=32)), 
+            bottom= textGrob(label = expression(BMI (kg/m^2)), hjust = 0.35,gp = gpar(fontsize=32)), 
             left = textGrob(label = "Treatment effect plot (absolute risk differences)", rot = 90, vjust = 1,gp = gpar(fontsize=32)))
 
 dev.off()
