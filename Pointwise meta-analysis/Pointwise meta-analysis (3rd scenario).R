@@ -293,8 +293,6 @@ point.wise.DF.SS.Comb.plot = point.wise.DF.SS.Comb%>%
   annotate("text",x = 19.25,y=0.9, size = 10, label = "d") +ylim(c(0,1))
 
 
-grid.arrange(point.wise.DF.RCS.Comb.plot,point.wise.DF.BS.Comb.plot,point.wise.DF.PS.Comb.plot,point.wise.DF.SS.Comb.plot)
-
 
 ##-------- Absolute risk differences (Treatment effect plot) -----------------------------------------------------------------------------
 

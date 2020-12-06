@@ -8,9 +8,9 @@ if(!require("mgcv")) install.packages("mgcv")
 if(!require("mvmeta")) install.packages("mvmeta")
 
 
+## ----Assisting functions --------------------------------------------------------------------------------------
 
-
-
+### Data simulator function
 data.creator = function(name.of.Clustering,
                         name.of.Treatment ,
                         number.of.studies, 
@@ -59,182 +59,12 @@ data.creator = function(name.of.Clustering,
 
 
 
-
-
-##### Third scenario (Heterogeneous regression lines with unequal BMI ranges)
-##### Both the regression lines and the ranges of BMI are different across studies 
-
-
-
-df3= data.creator(name.of.Clustering = "Study",
-                  name.of.Treatment = "Treatment",number.of.studies = 5,
-                  values.of.clustering.variable =  c("1st Study","2nd Study","3rd Study","4th Study","5th Study"),
-                  step.size =  0.03571,
-                  Treatment=  c(0,1),
-                  name.of.Continuous = "BMI",
-                  ranges.of.Continuous =  c( 18.5,   27, 
-                                             21.25,   30.25,
-                                             24.50,   33.50,
-                                             27.75,   36.75, 
-                                             31,   40))
-
-
-
-## We create a pseudo-variable that will help us create the curves we described in the paper
-df3$BMI.standardised =  with(df3, 2*(BMI-25)/40)
-
-## And add a column to generate the true underlying mortality risk 
-df3$`Mortality risk` = NA
-
-
-
-#### Random parameters that shift the regression lines across studies creating heterogeneity. 
-set.seed(32)
-shift =  round(runif(5, -0.05,0.05),2)
-shift2 = round(runif(5, -0.05,0.05),2)
-
-
-
-df3$Study.shift.intercept =  df3$Study 
-df3$Study.shift.slope =  df3$Study
-
-
-df3=df3%>%
-  mutate(Study.shift.intercept=recode(Study.shift.intercept,
-                                      '1st Study' = shift[1],
-                                      '2nd Study' = shift[2],
-                                      '3rd Study' = shift[3],
-                                      '4th Study' = shift[4],
-                                      '5th Study'= shift[5]  ), 
-         Study.shift.slope = recode(Study.shift.slope,
-                                    '1st Study' = shift2[1],
-                                    '2nd Study' = shift2[2],
-                                    '3rd Study' = shift2[3],
-                                    '4th Study' = shift2[4],
-                                    '5th Study'= shift2[5]  ))
-
-
-### Generate the mortality risk as function of BMI
-df3$`Mortality risk` =  with(df3, 0.2+ Study.shift.intercept + BMI.standardised^2+ BMI.standardised^4*Treatment + Study.shift.slope*Treatment -  BMI.standardised^2* Treatment)
-
-
-
-### Create the binary outcome given the mortality risks calculated above
-set.seed(32) ## 59663
-df3$Y <- rbinom(dim(df3)[1],1,df3$`Mortality risk`) 
-
-### Make treatment variable a factor with two levels "Control" and "Treated" 
-df3$Treatment <- factor(df3$Treatment , levels = c(0,1), labels = c("Control","Treated"))
-
-
-### Remove unnecessary objects
-rm(shift, shift2, data.creator)
-
-
-
-
-
-
-
-## ----Pointwise meta-analysis---------------------------------------------------------------------------------
-
-
-
-## Fit a RCS model per study
-RCS.Comb = df3%>%
-  arrange(desc(Study))%>%
-  group_by(Study) %>%
-  do(model = gam(formula = Y~ BMI + Treatment+ s(BMI,bs ="cr",fx=T,by = Treatment,k = 5),
-                 knots = list(BMI = quantile(.$BMI, probs = c(0.05,0.275,0.5,0.725,0.95))), 
-                 family = binomial("logit"), data = ., 
-                 method="REML" ))
-
-## Fit a B-splines model per study
-BS.Comb = df3%>%
-  arrange(desc(Study))%>%
-  group_by(Study) %>%
-  do(model = gam(formula = Y~ BMI + Treatment+ s(BMI,bs ="bs",fx=T,by = Treatment,m=c(2,0),k = 5),
-                 family = binomial("logit"), data = ., 
-                 method="REML" ))
-
-## Fit a P-splines model per study
-PS.Comb= df3%>%
-  arrange(desc(Study))%>%
-  group_by(Study) %>%
-  do(model = gam(formula = Y~ BMI + Treatment+ s(BMI,bs ="ps",fx=F,by = Treatment,k=17), 
-                 family = binomial("logit"), data = ., 
-                 method="REML" ))
-
-## Fit a Smoothing splines model per study
-SS.Comb = df3%>%
-  arrange(desc(Study))%>%
-  group_by(Study) %>%
-  do(model = gam(formula = Y~ BMI + Treatment+ s(BMI,bs ="tp",fx=F,by = Treatment), 
-                 family = binomial("logit"), data = ., 
-                 method="REML" ))
-
-
-## Create a data-set that will be used for estimating the predicted outcome
-
-new.dat= data.frame(BMI= rep(seq(18.5,40,length.out = 250),each = 10),
-                    Treatment = rep(unique(df3$Treatment),1250), 
-                    Study =  rep(rep(unique(df3$Study),each =2),250))
-
-
-### Calculate the predicted outcomes per study 
-
-### RCS
-predictions.RCS.Comb= new.dat%>%
-  droplevels(new.dat$Study)%>% 
-  arrange(desc(Study))%>%
-  group_by(Study)%>%
-  nest()%>%
-  full_join(RCS.Comb, by = "Study") %>% 
-  group_by(Study)%>% 
-  do(augment(.$model[[1]], newdata = .$data[[1]],se_fit =T)) 
-
-### B-splines
-predictions.BS.Comb= new.dat%>%
-  droplevels(new.dat$Study)%>% 
-  arrange(desc(Study))%>%
-  group_by(Study)%>%
-  nest()%>%
-  full_join(BS.Comb, by = "Study") %>% 
-  group_by(Study)%>% 
-  do(augment(.$model[[1]], newdata = .$data[[1]],se_fit =T)) 
-
-### P-splines
-predictions.PS.Comb= new.dat%>%
-  droplevels(new.dat$Study)%>% 
-  arrange(desc(Study))%>%
-  group_by(Study)%>%
-  nest()%>%
-  full_join(PS.Comb, by = "Study") %>% 
-  group_by(Study)%>% 
-  do(augment(.$model[[1]], newdata = .$data[[1]],se_fit =T)) 
-
-### Smoothing splines
-predictions.SS.Comb= new.dat%>%
-  droplevels(new.dat$Study)%>% 
-  arrange(desc(Study))%>%
-  group_by(Study)%>%
-  nest()%>%
-  full_join(SS.Comb, by = "Study") %>% 
-  group_by(Study)%>% 
-  do(augment(.$model[[1]], newdata = .$data[[1]],se_fit =T)) 
-
-## Second stage (pooling the regression lines per X*)
-
-
-#### code for running the point-wise meta-analysis
-#### The following is an assisting function that performs a poitwise meta-analysis per X
-#### Note that in order to calculate the predicted outcome correctly you need to have matching BMI values in at least 2 Studies.
+#### The following function is an assisting function that performs a poitwise meta-analysis per X
+#### Note that in order to calculate the predicted outcome correctly you need to have matching BMI 
+#### values in at least 2 Studies.
 ####
 #### The output is a data-set with the results of 3 meta-analyses (Fixed effects, Random effects and Random effects with HKSJ correction)
-#### You can choose based on your assumptions which assumption you wish to apply for your meta-analysis.
-
-
-
+#### You can choose based on your assumptions which method you wish to apply for your meta-analysis.
 
 pointwise.ma = function(data, ### Give the data-set with the predicted outcomes
                         clustering.variable = "Study",              ### Provide the name of the clustering variable 
@@ -242,7 +72,7 @@ pointwise.ma = function(data, ### Give the data-set with the predicted outcomes
                         predicted.outcome =  NULL,                  ### Provide the name of the predicted outcome variable
                         predicted.outcome.se = NULL,                ### Provide the name of the predicted outcome standard errors or 
                         predicted.outcome.CI = c("lower", "upper"), ### Provide the name of the predicted outcome confidence intervals
-                        tau.method = "EB" ){                        ### Provide the pooling method we wish to apply 
+                        tau.method = "REML" ){                        ### Provide the pooling method we wish to apply 
   
   
   split= data%>%
@@ -360,10 +190,225 @@ pointwise.ma = function(data, ### Give the data-set with the predicted outcomes
 
 
 
+
+
+### The following function will calculate the risk differences between interventions
+### The output is a data.frame with the risk differences
+
+risk.diff.creator =  function(dataframe = NULL,          ### Provide the data-set with the predicted outcomes
+                              treatment = "treat",       ### Provide the name of the intervention variable
+                              matching.variables=  NULL, ### Provide the names of any other predictors 
+                              outcome= NULL,             ### Provide the name of the outcome 
+                              predicted.outcome = NULL,  ### Provide the name of the predicted outcome
+                              predicted.CI = NULL){      ### Provide the name of the confidence intervals of the predicted outcome
+  
+  
+  
+  
+  dataframe = dataframe[,c(outcome,treatment,matching.variables, predicted.outcome, predicted.CI)]
+  
+  
+  
+  split= dataframe%>%
+    group_by(!!as.name(treatment) )%>%
+    group_split()
+  
+  
+  split.df= full_join(x = split[[1]],y = split[[2]], by= matching.variables  )
+  
+  
+  
+  p1 =  as.matrix(split.df[, paste(predicted.outcome,"y",sep = ".")])
+  p2 =  as.matrix(split.df[, paste(predicted.outcome,"x",sep = ".")])
+  l1 =  as.matrix(split.df[, paste(predicted.CI[1],"y",sep = ".")])
+  l2 =  as.matrix(split.df[, paste(predicted.CI[1],"x",sep = ".")])
+  u1 =  as.matrix(split.df[, paste(predicted.CI[2],"y",sep = ".")])
+  u2 =  as.matrix(split.df[, paste(predicted.CI[2],"x",sep = ".")])
+  
+  split.df$fit.diff = p1 - p2 
+  
+  split.df$diff.lower =  split.df$fit.diff - sqrt((p1-l1)^2 + (u2-p2)^2)
+  
+  split.df$diff.upper =  split.df$fit.diff +  sqrt((p2-l2)^2 + (u1-p1)^2)
+  
+  split.df= as.data.frame(split.df)
+  return(split.df)
+  
+  
+}
+
+
 ### Introduce the expit function to back-transform from logit scale
 
 expit<-function(rs) {1/(1+exp(-rs))}
 
+
+##### Third scenario (Heterogeneous regression lines with unequal BMI ranges)
+##### Both the regression lines and the ranges of BMI are different across studies 
+
+
+
+df3= data.creator(name.of.Clustering = "Study",
+                  name.of.Treatment = "Treatment",number.of.studies = 5,
+                  values.of.clustering.variable =  c("1st Study","2nd Study","3rd Study","4th Study","5th Study"),
+                  step.size =  0.03571,
+                  Treatment=  c(0,1),
+                  name.of.Continuous = "BMI",
+                  ranges.of.Continuous =  c( 18.5,   27, 
+                                             21.25,   30.25,
+                                             24.50,   33.50,
+                                             27.75,   36.75, 
+                                             31,   40))
+
+
+
+## We create a pseudo-variable that will help us create the curves we described in the paper
+df3$BMI.standardised =  with(df3, 2*(BMI-25)/40)
+
+## And add a column to generate the true underlying mortality risk 
+df3$`Mortality risk` = NA
+
+
+
+#### Random parameters that shift the regression lines across studies creating heterogeneity. 
+set.seed(32)
+shift =  round(runif(5, -0.05,0.05),2)
+shift2 = round(runif(5, -0.05,0.05),2)
+
+
+
+df3$Study.shift.intercept =  df3$Study 
+df3$Study.shift.slope =  df3$Study
+
+
+df3=df3%>%
+  mutate(Study.shift.intercept=recode(Study.shift.intercept,
+                                      '1st Study' = shift[1],
+                                      '2nd Study' = shift[2],
+                                      '3rd Study' = shift[3],
+                                      '4th Study' = shift[4],
+                                      '5th Study'= shift[5]  ), 
+         Study.shift.slope = recode(Study.shift.slope,
+                                    '1st Study' = shift2[1],
+                                    '2nd Study' = shift2[2],
+                                    '3rd Study' = shift2[3],
+                                    '4th Study' = shift2[4],
+                                    '5th Study'= shift2[5]  ))
+
+
+### Generate the mortality risk as function of BMI
+df3$`Mortality risk` =  with(df3, 0.2+ Study.shift.intercept + BMI.standardised^2+ BMI.standardised^4*Treatment + Study.shift.slope*Treatment -  BMI.standardised^2* Treatment)
+
+
+
+### Create the binary outcome given the mortality risks calculated above
+set.seed(32) ## 59663
+df3$Y <- rbinom(dim(df3)[1],1,df3$`Mortality risk`) 
+
+### Make treatment variable a factor with two levels "Control" and "Treated" 
+df3$Treatment <- factor(df3$Treatment , levels = c(0,1), labels = c("Control","Treated"))
+
+
+### Remove unnecessary objects
+rm(shift, shift2, data.creator)
+
+
+
+
+
+
+
+##----Pointwise meta-analysis---------------------------------------------------------------------------------
+
+
+## Fit a RCS model per study
+RCS.Comb = df3%>%
+  arrange(desc(Study))%>%
+  group_by(Study) %>%
+  do(model = gam(formula = Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="cr",fx=T,by = Treatment,k = 4),
+                 knots = list(BMI = quantile(.$BMI, probs = c(0.05,0.35,0.65,0.95))), 
+                 family = binomial("logit"), data = ., 
+                 method="REML" ))
+
+## Fit a B-splines model per study
+BS.Comb = df3%>%
+  arrange(desc(Study))%>%
+  group_by(Study) %>%
+  do(model = gam(formula = Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="bs",fx=T,by = Treatment,m=c(2,0),k = 4),
+                 family = binomial("logit"), 
+                 data = .,
+                 method="REML" ))
+
+## Fit a P-splines model per study
+PS.Comb= df3%>%
+  arrange(desc(Study))%>%
+  group_by(Study) %>%
+  do(model = gam(formula = Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="ps",fx=F,by = Treatment,k=17), 
+                 family = binomial("logit"), 
+                 data = ., 
+                 method="REML" ))
+
+## Fit a Smoothing splines model per study
+SS.Comb = df3%>%
+  arrange(desc(Study))%>%
+  group_by(Study) %>%
+  do(model = gam(formula = Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="tp",fx=F,by = Treatment), 
+                 family = binomial("logit"), 
+                 data = ., 
+                 method="REML" ))
+
+
+## Create a data-set that will be used for estimating the predicted outcome
+
+new.dat= data.frame(BMI= rep(seq(18.5,40,length.out = 50),each = 10),
+                    Treatment = rep(unique(df3$Treatment),250), 
+                    Study =  rep(rep(unique(df3$Study),each =2),50))
+
+
+### Calculate the predicted outcomes per study 
+
+### RCS
+predictions.RCS.Comb= new.dat%>%
+  droplevels(new.dat$Study)%>% 
+  arrange(desc(Study))%>%
+  group_by(Study)%>%
+  nest()%>%
+  full_join(RCS.Comb, by = "Study") %>% 
+  group_by(Study)%>% 
+  do(augment(.$model[[1]], newdata = .$data[[1]],se_fit =T)) 
+
+### B-splines
+predictions.BS.Comb= new.dat%>%
+  droplevels(new.dat$Study)%>% 
+  arrange(desc(Study))%>%
+  group_by(Study)%>%
+  nest()%>%
+  full_join(BS.Comb, by = "Study") %>% 
+  group_by(Study)%>% 
+  do(augment(.$model[[1]], newdata = .$data[[1]],se_fit =T)) 
+
+### P-splines
+predictions.PS.Comb= new.dat%>%
+  droplevels(new.dat$Study)%>% 
+  arrange(desc(Study))%>%
+  group_by(Study)%>%
+  nest()%>%
+  full_join(PS.Comb, by = "Study") %>% 
+  group_by(Study)%>% 
+  do(augment(.$model[[1]], newdata = .$data[[1]],se_fit =T)) 
+
+### Smoothing splines
+predictions.SS.Comb= new.dat%>%
+  droplevels(new.dat$Study)%>% 
+  arrange(desc(Study))%>%
+  group_by(Study)%>%
+  nest()%>%
+  full_join(SS.Comb, by = "Study") %>% 
+  group_by(Study)%>% 
+  do(augment(.$model[[1]], newdata = .$data[[1]],se_fit =T)) 
+
+
+## Second stage (pooling the regression lines per X*)
 
 ### RCS
 point.wise.DF.RCS.Comb = pointwise.ma(data = predictions.RCS.Comb,
@@ -439,17 +484,17 @@ point.wise.DF.RCS.Comb.plot = point.wise.DF.RCS.Comb%>%
   xlab("")+ theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   annotate("text",x = 19.25,y=0.9, size = 10, label = "a") +ylim(c(0,1))
@@ -465,17 +510,17 @@ point.wise.DF.BS.Comb.plot = point.wise.DF.BS.Comb%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
   annotate("text",x = 19.25,y=0.9, size = 10, label = "b") +ylim(c(0,1))
@@ -490,17 +535,17 @@ point.wise.DF.PS.Comb.plot = point.wise.DF.PS.Comb%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
   annotate("text",x = 19.25,y=0.9, size = 10,label = "c") +ylim(c(0,1))
@@ -516,24 +561,24 @@ point.wise.DF.SS.Comb.plot = point.wise.DF.SS.Comb%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=32),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
   annotate("text",x = 19.25,y=0.9, size = 10, label = "d") +ylim(c(0,1))
 
 
 
-## ----Absolute risk differences ---------------------------------------------------------------------------------
+#### Absolute risk differences
 ### The right way to perform a pointwise meta-analysis is first to estimate the risk differences per Study and BMI value and then pool them. 
 
 ### First stage
@@ -568,62 +613,6 @@ predictions.SS.Comb=predictions.SS.Comb%>%
          Upper =  .fitted + 1.96*.se.fit)%>%
   mutate(fit = expit(.fitted), Lower =  expit(Lower), Upper =  expit(Upper)) %>%
   mutate(BMI =  as.character(BMI)) 
-
-
-
-### Load assisting function to calculate absolute risk differences and their SEs
-### The following function will calculate the risk differences between interventions
-
-
-
-### The output is a data.frame with the risk differences
-
-risk.diff.creator =  function(dataframe = NULL,          ### Provide the data-set with the predicted outcomes
-                              treatment = "treat",       ### Provide the name of the intervention variable
-                              matching.variables=  NULL, ### Provide the names of any other predictors 
-                              outcome= NULL,             ### Provide the name of the outcome 
-                              predicted.outcome = NULL,  ### Provide the name of the predicted outcome
-                              predicted.CI = NULL){      ### Provide the name of the confidence intervals of the predicted outcome
-  
-  
-  
-  
-  dataframe = dataframe[,c(outcome,treatment,matching.variables, predicted.outcome, predicted.CI)]
-  
-  
-  
-  split= dataframe%>%
-    group_by(!!as.name(treatment) )%>%
-    group_split()
-  
-  
-  split.df= full_join(x = split[[1]],y = split[[2]], by= matching.variables  )
-  
-  
-  
-  p1 =  as.matrix(split.df[, paste(predicted.outcome,"y",sep = ".")])
-  p2 =  as.matrix(split.df[, paste(predicted.outcome,"x",sep = ".")])
-  l1 =  as.matrix(split.df[, paste(predicted.CI[1],"y",sep = ".")])
-  l2 =  as.matrix(split.df[, paste(predicted.CI[1],"x",sep = ".")])
-  u1 =  as.matrix(split.df[, paste(predicted.CI[2],"y",sep = ".")])
-  u2 =  as.matrix(split.df[, paste(predicted.CI[2],"x",sep = ".")])
-  
-  split.df$fit.diff = p1 - p2 
-  
-  split.df$diff.lower =  split.df$fit.diff - sqrt((p1-l1)^2 + (u2-p2)^2)
-  
-  split.df$diff.upper =  split.df$fit.diff +  sqrt((p2-l2)^2 + (u1-p1)^2)
-  
-  split.df= as.data.frame(split.df)
-  return(split.df)
-  
-  
-}
-
-
-
-
-
 
 
 ### RCS
@@ -830,58 +819,56 @@ point.wise.DF.SS.Comb.diff.plot=point.wise.absolute_diff_SS.Comb%>%
 
 
 
+##-----MVmeta--------------------------------------
 
-## ----MVmeta---------------------------------------------------------------------------------
+### MVmeta without pseudo-data.
+## We follow White et al. and Riley et al. recommendations and we performed data augmentation
+## In our simulated data-set the range of BMI in Study 1 is [18.5,27] while in Study 5 [31,40]
+## To avoid errors we create pseudo-data on the boundaries and give them very small weight to 
+## avoid biased regression curves. 
 
-
-### 
-### Clear enviroment 
-rm(list=ls()[! ls() %in% c("df3","expit")])
-
-
-## In MVmeta we use the same parametrisation in all studies. 
-## Some positions of knots, some degree of the basis functions etc. 
-## However, some studies there may be values missing. 
-
-df3%>%
-  group_by(Study)%>%
-  summarise(range(BMI))
-
-
-## For instance, as you can see in our simulated data-set the range of BMI in Study 1 is [18.5,27] while in Study 5 [31,40]
-## To avoid errors we may need to create pseudo-data on the boundaries and give them very small weight to avoid biased regression curves. 
-
-## We introduce the weight variable 
-## In the original data-set the weight will be 1
+## We introduce the weight variable in our data-set 
+## In the original data-set the weight will be 1, while in the augmented data-set 0.000000001
 df3$weight =  1
 
 
 ## We save into objects the values near the overall boundaries 18.5 and 40 
 ## Note that how close we wish to be on the boundaries is arbitrary. 
 
-lower=df3[df3$BMI<19,] ;   n.lower =  dim(lower)[1]
-upper=df3[df3$BMI >39.5,]; n.upper =  dim(upper)[1]
+lower=df3[df3$BMI<19,] ;   n.lower =  dim(lower)[1]; lower$BMI = 18.5
+upper=df3[df3$BMI >39.5,]; n.upper =  dim(upper)[1]; upper$BMI = 40
 
 
 ## We produce 4 copies of the lower and upper data-sets and give them very small weights.
 
-rep.lower=  do.call(rbind, replicate(4, lower, simplify = FALSE)) ;  rep.lower$weight= 0.0000000000001
-rep.upper=  do.call(rbind, replicate(4, upper, simplify = FALSE)) ;  rep.upper$weight= 0.0000000000001
+rep.lower=  do.call(rbind, replicate(4, lower, simplify = FALSE)) ;  rep.lower$weight= 0.0000001
+rep.upper=  do.call(rbind, replicate(4, upper, simplify = FALSE)) ;  rep.upper$weight= 0.0000001
 
 ## As you can see the lower and upper data-sets use the original study information
 head(rep.lower); head(rep.upper)
 ## So we change the names of the studies within the data-sets. 
+
 rep.lower$Study = rep(unique(df3$Study)[-1], each= n.lower)
 rep.upper$Study = rep(unique(df3$Study)[-5], each= n.upper)
 
 ## And we add them to the original data-set.
 
-
-df3.with.pseudo =  rbind(df3, rep.lower, rep.upper)
-
 ### RCS  
 ### Define the knots position in 5%, 27.5%,  50%, 72.5% and 95% quantiles of BMI
 Knots.RCS.df3 =   list(BMI=quantile(df3$BMI, probs = c(0.05,0.275,0.5,0.725,0.95))) 
+
+df3 =  rbind(df3, rep.lower, rep.upper)
+## Now each study has values near the boundaries of BMI [18.5,40]
+
+#df3%>%
+#  group_by(Study)%>%
+#  summarise(range(BMI))
+
+
+### remove the object we don't need
+
+rm(lower,upper, rep.lower,rep.upper,n.lower, n.upper)
+
 
 ## The formula for all Studies is the same so we save it 
 
@@ -896,6 +883,7 @@ nstudies.RCS.df3 = length(unique(df3$Study))
 
 fit.RCS.df3 = gam( formula =formula.RCS,
                    knots = Knots.RCS.df3,
+                   weights = weight,
                    family = binomial("logit"), 
                    data = df3)
 
@@ -918,14 +906,16 @@ S.RCS.df3 = matrix(NA, ncol=sum(c(1:length(fit.RCS.df3$coefficients))), nrow = n
 k=3
 j=1
 
-for( i in unique(df3.with.pseudo$Study)){
+for( i in unique(df3$Study)){
   
   ### Get a mini df3 with only one study
-  minidf3 = df3.with.pseudo%>%
+  minidf3 = df3%>%
     filter(Study == i)
   
   # Fit the GAM
-  fit = gam(formula = formula.RCS ,knots = Knots.RCS.df3, family = binomial("logit"),weights = weight, data = minidf3)
+  fit = gam(formula = formula.RCS ,
+            knots = Knots.RCS.df3, weights = weight,
+            family = binomial("logit"), data = minidf3)
   ### Extract the coefficients and their standard errors for mvmeta
   estimated.coefficients.RCS.df3[j,] = fit$coefficients
   S.RCS.df3[j,] = vcov(fit)[lower.tri(vcov(fit), diag = T)]
@@ -935,8 +925,6 @@ for( i in unique(df3.with.pseudo$Study)){
   #rm(i,minidf3,fit)
 }
 rm(k,j)
-
-
 
 
 #### Perform a multivariate meta-analysis
@@ -972,16 +960,17 @@ g.mvmeta.total.RCS.Comb = ggplot(mvmeta.df3.RCS,aes(x = BMI, fit, linetype= Trea
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_blank(),
         legend.position = "none")  + 
-  annotate(geom = "text",x = 19.25,y = 0.8,label=  " a", size= 12 ) 
+  annotate(geom = "text",x = 19,y = 0.8,label=  " a", size= 12 ) 
 
 
 g.mvmeta.total.RCS.Comb
+
 
 
 ### B-splines
@@ -989,8 +978,7 @@ g.mvmeta.total.RCS.Comb
 
 ## The formula for all studies is the same so we save it 
 
-Knots.BS.df3 =  list(BMI =  c(11.29786, 14.88818, 18.5, 21.2, 24.5, 27.0, 30.2, 33.5, 36.7, 40.0,  43.61074, 47.20106))
-formula.BS = Y~ BMI + Treatment+ s(BMI,bs ="bs",fx=T,by = Treatment,k = 9,m=c(2,0))
+formula.BS = Y~ BMI + Treatment+ s(BMI,bs ="bs",fx=T,by = Treatment,k = 5,m=c(2,0))
 
 ## Number of studies
 
@@ -999,9 +987,11 @@ nstudies.BS.df3 = length(unique(df3$Study))
 
 ### Fit a stacked analysis in the whole data-set to get the model matrix to get the predicted outcomes later on
 
-fit.BS.df3 = gam( formula =formula.BS,knots=Knots.BS.df3,
+fit.BS.df3 = gam( formula =formula.BS,
                   family = binomial("logit"), 
-                  data = df3)
+                  data = df3[df3$weight==1,])
+
+Knots.BS.df3 =  list(BMI=c(4.18, 11.34, 18.50, 25.66, 32.84, 40, 47.16, 54.32))
 
 ### Get the model matrices for each data-set
 
@@ -1022,10 +1012,10 @@ S.BS.df3 = matrix(NA, ncol=sum(c(1:length(fit.BS.df3$coefficients))), nrow = nst
 k=3
 j=1
 
-for( i in unique(df3.with.pseudo$Study)){
+for( i in unique(df3$Study)){
   
   ### Get a mini df3 with only one study
-  minidf3 = df3.with.pseudo%>%
+  minidf3 = df3%>%
     filter(Study == i)
   
   # Fit the GAM
@@ -1045,7 +1035,7 @@ rm(k,j)
 
 
 #### Perform a multivariate meta-analysis
-mv.fit.BS.df3 = mvmeta(estimated.coefficients.BS.df3, S.BS.df3)
+mv.fit.BS.df3 = mvmeta(estimated.coefficients.BS.df3, S.BS.df3,control = list(maxiter=1000))
 
 
 prediction.interval.mvmeta.BS.df3 =  X.p.BS.df3 %*% coef(mv.fit.BS.df3)
@@ -1055,7 +1045,7 @@ prediction.interval.mvmeta.lower.BS.df3 =  X.p.BS.df3 %*% coef(mv.fit.BS.df3) - 
 prediction.interval.mvmeta.upper.BS.df3 =  X.p.BS.df3 %*% coef(mv.fit.BS.df3) + sqrt( rowSums(X.p.BS.df3  * (X.p.BS.df3  %*% vcov(mv.fit.BS.df3)))) * qt(0.025, dim(df3)[1] - 3)
 
 
-mvmeta.df3.BS = cbind(df3[,c("Study","BMI","Treatment")],
+mvmeta.df3.BS = cbind(df3[df3$weight==1,c("Study","BMI","Treatment")],
                       fit =  expit(prediction.interval.mvmeta.BS.df3), 
                       Lower= expit(prediction.interval.mvmeta.lower.BS.df3),
                       Upper =expit(prediction.interval.mvmeta.upper.BS.df3 ))
@@ -1077,65 +1067,104 @@ g.mvmeta.total.BS.Comb = ggplot(mvmeta.df3.BS,aes(x = BMI, fit, linetype= Treatm
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30), 
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_blank(),
         legend.position = "none")  + 
-  annotate(geom = "text",x = 19.25,y = 0.8,label=  " b", size= 12 ) 
+  annotate(geom = "text",x = 19,y = 0.8,label=  " b", size= 12 ) 
 
 
 g.mvmeta.total.BS.Comb
 
 
-p1=  ggplot(mvmeta.df3.BS,aes(x = BMI, fit, linetype= Treatment, color= Treatment)) + 
-  geom_line(size=2)+ ylim(c(0,1))+
+
+#### MVmeta absolute risk differences
+
+MV.meta_absolute_difference.RCS.Comb =  risk.diff.creator(dataframe = mvmeta.df3.RCS,
+                                                          treatment = "Treatment",
+                                                          matching.variables=  c("BMI"),
+                                                          outcome= NULL, 
+                                                          predicted.outcome = "fit", 
+                                                          predicted.CI = c("Lower","Upper"))
+
+
+
+MV.meta_absolute_difference.BS.Comb =  risk.diff.creator(dataframe = mvmeta.df3.BS,
+                                                         treatment = "Treatment",
+                                                         matching.variables=  c("BMI"),
+                                                         outcome= NULL, 
+                                                         predicted.outcome = "fit", 
+                                                         predicted.CI = c("Lower","Upper"))
+
+
+
+
+MV.meta_absolute_difference.RCS.Comb.plot = ggplot(MV.meta_absolute_difference.RCS.Comb,
+                                                   aes(x = BMI, fit.diff)) + 
+  geom_line(size=2)+ 
   ylab("")+ xlab("") + scale_color_jama()+ 
-  theme_bw()+ geom_ribbon(mapping = aes(ymin=Lower, ymax=Upper),alpha=0.15)+
+  theme_bw()+ 
+  geom_ribbon(mapping = aes(ymin=diff.lower, ymax=diff.upper),alpha=0.25)+
+  geom_hline(yintercept = 0, linetype=2)+ theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
-        axis.title.y = element_text(size = 30), 
+        axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
-        legend.title =element_blank(),
-        legend.position = "bottom") + 
-  annotate("text",x = 19.25,y=0.9, size = 10, label = "d") +ylim(c(0,1))
+        legend.text=element_text(size=42, hjust = 0), 
+        legend.title =element_text(size=28, hjust = 0.5),
+        legend.position = "none") +  
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "a")+ ylim(c(-1,1))
+
+
+MV.meta_absolute_difference.BS.Comb.plot = 
+  ggplot(MV.meta_absolute_difference.BS.Comb,aes(x = BMI, fit.diff)) + 
+  geom_line(size=2)+ 
+  ylab("")+ xlab("") + scale_color_jama()+ 
+  theme_bw()+ 
+  geom_ribbon(mapping = aes(ymin=diff.lower, ymax=diff.upper),alpha=0.25)+
+  geom_hline(yintercept = 0, linetype=2)+ theme_minimal()+
+  theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
+        plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        plot.margin = unit(c(0,0,0,0), "cm"),
+        panel.spacing = unit(2, "lines"),
+        panel.border = element_rect(colour = "black", fill=NA, size=2),
+        strip.text = element_text(face="bold", size=16, hjust = 0.5),
+        axis.title.y = element_text(size = 30),
+        axis.title.x = element_text(size = 30),
+        axis.text.y = element_text(face="bold",  size=24),
+        legend.key.size = unit(1.5, "cm"),
+        legend.key.width = unit(1.5,"cm"),
+        legend.text=element_text(size=42, hjust = 0), 
+        legend.title =element_text(size=28, hjust = 0.5),
+        legend.position = "none") +  
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "b")+ ylim(c(-1,1))
+
+
+MV_meta_plot_absolute_diff_Comb = grid.arrange(MV.meta_absolute_difference.RCS.Comb.plot,MV.meta_absolute_difference.BS.Comb.plot,
+                                               ncol = 2, 
+                                               right = textGrob(label = "", vjust = -1,gp = gpar(fontsize=32)),
+                                               bottom= textGrob(label = expression(BMI (Kg/m^2)),vjust=0.25, hjust = 0.25,gp = gpar(fontsize=32)))
 
 
 
-legend = gtable_filter(ggplotGrob(p1), "guide-box") 
+##----GAMM -----------------------------------------------------------------
 
-
-
-library(grid)
-MV_meta_plot_Comb = grid.arrange(arrangeGrob(g.mvmeta.total.RCS.Comb,g.mvmeta.total.BS.Comb,
-                                             ncol = 2, 
-                                             right = textGrob(label = "", vjust = -1,gp = gpar(fontsize=32)),
-                                             bottom= textGrob(label = expression(paste("BMI ", (Kg/m^2))),vjust=0.25, hjust = 0.25,gp = gpar(fontsize=32))),
-                                 legend, heights=  c(10,1))
-
-
-
-
-## ----GAMM --------------------------------------------------------------------------------------
-
-
-rm(list=ls()[! ls() %in% c("df3","expit")]) ### To clear all environment besides the data-set
 Knots= list (BMI = (quantile(df3$BMI , probs = c(0.05,0.275,0.5,0.725,0.95))))
 
 
 
-
-fit.RCS.Combined = gam(Y~  BMI+ Treatment+ 
+fit.RCS.Combined = gam(Y~  BMI + Treatment + BMI*Treatment + 
                          s(BMI,by = Treatment,bs="cr",fx = T, k = 5) +  
                          s(Study,bs = "re") +  
                          s(Study,BMI,bs = "re")+  
@@ -1143,7 +1172,7 @@ fit.RCS.Combined = gam(Y~  BMI+ Treatment+
                        family = binomial("logit"), data = df3, nthreads = 8, method = "REML")
 
 
-fit.BS.Combined = gam(Y~  BMI+ Treatment+ 
+fit.BS.Combined = gam(Y~  BMI + Treatment + BMI*Treatment + 
                         s(BMI,by = Treatment,fx = T,bs="bs",k=5, m=c(2,0)) +  
                         s(Study,bs = "re") +  
                         s(Study,BMI,bs = "re")+  
@@ -1151,7 +1180,7 @@ fit.BS.Combined = gam(Y~  BMI+ Treatment+
                       family = binomial("logit"), data = df3, nthreads = 8, method = "REML")
 
 
-fit.PS.Combined = gam(Y~  BMI+ Treatment+ 
+fit.PS.Combined = gam(Y~  BMI + Treatment + BMI*Treatment + 
                         s(BMI,by = Treatment,bs="ps", k = 19) +  
                         s(Study,bs = "re") +  
                         s(Study,BMI,bs = "re")+  
@@ -1159,7 +1188,7 @@ fit.PS.Combined = gam(Y~  BMI+ Treatment+
                       family = binomial("logit"), data = df3, nthreads = 8, method = "REML")
 
 
-fit.SS.Combined = gam(Y~  BMI+ Treatment+ 
+fit.SS.Combined = gam(Y~  BMI + Treatment + BMI*Treatment + 
                         s(BMI,by = Treatment,bs="tp") +  
                         s(Study,bs = "re") +  
                         s(Study,BMI,bs = "re")+  
@@ -1201,20 +1230,20 @@ g.GAMM.RCS.Combined=ggplot(preds.RCS.Combined, aes(BMI, expit(fit), linetype= Tr
   theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.8, size = 10, label = "a") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.8, size = 10, label = "a") +ylim(c(0,1))
 
 
 g.GAMM.BS.Combined=ggplot(preds.BS.Combined, aes(BMI, expit(fit), linetype= Treatment,color = Treatment)) + 
@@ -1224,20 +1253,20 @@ g.GAMM.BS.Combined=ggplot(preds.BS.Combined, aes(BMI, expit(fit), linetype= Trea
   theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.8, size = 10, label = "b") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.8, size = 10, label = "b") +ylim(c(0,1))
 
 
 g.GAMM.PS.Combined=ggplot(preds.PS.Combined, aes(BMI, expit(fit), linetype= Treatment,color = Treatment)) + 
@@ -1247,20 +1276,20 @@ g.GAMM.PS.Combined=ggplot(preds.PS.Combined, aes(BMI, expit(fit), linetype= Trea
   theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.8, size = 10,label = "c") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.8, size = 10,label = "c") +ylim(c(0,1))
 
 
 g.GAMM.SS.Combined=ggplot(preds.SS.Combined, aes(BMI, expit(fit), linetype= Treatment,color = Treatment)) + 
@@ -1270,20 +1299,20 @@ g.GAMM.SS.Combined=ggplot(preds.SS.Combined, aes(BMI, expit(fit), linetype= Trea
   theme_bw()+ 
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19.25,y=0.8, size = 10, label = "d") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.8, size = 10, label = "d") +ylim(c(0,1))
 
 
 
@@ -1314,56 +1343,7 @@ preds.SS.Combined=preds.SS.Combined%>%
          Upper =  fit + 1.96*se.fit)%>%
   mutate(fit = expit(fit), Lower =  expit(Lower), Upper =  expit(Upper))
 
-## ----GAMMs Treatment effect plots------------------------------------------------------------------------------------------------------
-
-### Load assisting function to calculate absolute risk differences and their SEs
-### The following function will calculate the risk differences between interventions
-
-
-
-### The output is a data.frame with the risk differences
-
-risk.diff.creator =  function(dataframe = NULL,          ### Provide the data-set with the predicted outcomes
-                              treatment = "treat",       ### Provide the name of the intervention variable
-                              matching.variables=  NULL, ### Provide the names of any other predictors 
-                              outcome= NULL,             ### Provide the name of the outcome 
-                              predicted.outcome = NULL,  ### Provide the name of the predicted outcome
-                              predicted.CI = NULL){      ### Provide the name of the confidence intervals of the predicted outcome
-  
-  
-  
-  
-  dataframe = dataframe[,c(outcome,treatment,matching.variables, predicted.outcome, predicted.CI)]
-  
-  
-  
-  split= dataframe%>%
-    group_by(!!as.name(treatment) )%>%
-    group_split()
-  
-  
-  split.df= full_join(x = split[[1]],y = split[[2]], by= matching.variables  )
-  
-  
-  
-  p1 =  as.matrix(split.df[, paste(predicted.outcome,"y",sep = ".")])
-  p2 =  as.matrix(split.df[, paste(predicted.outcome,"x",sep = ".")])
-  l1 =  as.matrix(split.df[, paste(predicted.CI[1],"y",sep = ".")])
-  l2 =  as.matrix(split.df[, paste(predicted.CI[1],"x",sep = ".")])
-  u1 =  as.matrix(split.df[, paste(predicted.CI[2],"y",sep = ".")])
-  u2 =  as.matrix(split.df[, paste(predicted.CI[2],"x",sep = ".")])
-  
-  split.df$fit.diff = p1 - p2 
-  
-  split.df$diff.lower =  split.df$fit.diff - sqrt((p1-l1)^2 + (u2-p2)^2)
-  
-  split.df$diff.upper =  split.df$fit.diff +  sqrt((p2-l2)^2 + (u1-p1)^2)
-  
-  split.df= as.data.frame(split.df)
-  return(split.df)
-  
-  
-}
+####### GAMM absolute risk differences
 
 
 absolute_diff_RCS.Comb = risk.diff.creator(dataframe = preds.RCS.Combined,
@@ -1407,8 +1387,6 @@ absolute_diff_SS.Comb=  absolute_diff_SS.Comb%>%
   select( BMI, fit.diff, diff.lower, diff.upper)
 
 
-
-
 GAMM.DF.RCS.Comb.diff.plot = absolute_diff_RCS.Comb%>%
   ggplot(aes(x = BMI,fit.diff)) + geom_line(size=2)+
   geom_ribbon(mapping = aes(ymin=diff.lower, ymax=diff.upper),alpha=0.25)+
@@ -1416,20 +1394,20 @@ GAMM.DF.RCS.Comb.diff.plot = absolute_diff_RCS.Comb%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "a")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "a")+ ylim(c(-1,1))
 
 
 
@@ -1441,20 +1419,20 @@ GAMM.DF.BS.Comb.diff.plot=absolute_diff_BS.Comb%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "b")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "b")+ ylim(c(-1,1))
 
 
 GAMM.DF.PS.Comb.diff.plot=absolute_diff_PS.Comb%>%
@@ -1464,20 +1442,20 @@ GAMM.DF.PS.Comb.diff.plot=absolute_diff_PS.Comb%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10,label = "c")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10,label = "c")+ ylim(c(-1,1))
 
 
 GAMM.DF.SS.Comb.diff.plot=absolute_diff_SS.Comb%>%
@@ -1487,22 +1465,31 @@ GAMM.DF.SS.Comb.diff.plot=absolute_diff_SS.Comb%>%
   xlab("")+theme_minimal()+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
-        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=12),
+        axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=24),
         plot.margin = unit(c(0,0,0,0), "cm"),
         panel.spacing = unit(2, "lines"),
         panel.border = element_rect(colour = "black", fill=NA, size=2),
         strip.text = element_text(face="bold", size=16, hjust = 0.5),
         axis.title.y = element_text(size = 30),
         axis.title.x = element_text(size = 30),
-        axis.text.y = element_text(face="bold",  size=18),
+        axis.text.y = element_text(face="bold",  size=24),
         legend.key.size = unit(1.5, "cm"),
         legend.key.width = unit(1.5,"cm"),
-        legend.text=element_text(size=20, hjust = 0), 
+        legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "d")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "d")+ ylim(c(-1,1))
 
 
+
+
+grid.arrange(arrangeGrob(GAMM.DF.RCS.Comb.diff.plot, 
+                         GAMM.DF.BS.Comb.diff.plot, 
+                         GAMM.DF.PS.Comb.diff.plot, 
+                         GAMM.DF.SS.Comb.diff.plot, ncol=4),
+             bottom= textGrob(label = expression(paste("BMI ", (Kg/m^2))), 
+                              hjust = 0,gp = gpar(fontsize=32)), 
+             left = textGrob(label = "Treatment effect (Absolute risk difference)", rot = 90, vjust = 1,gp = gpar(fontsize=32)))
 
 
 
