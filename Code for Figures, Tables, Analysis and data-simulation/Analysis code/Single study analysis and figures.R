@@ -141,7 +141,7 @@ gRCS= ggplot(preds.RCS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19,y=0.9, size = 10, label = "a") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.75, size = 10, label = "a") +ylim(c(0,1))
 
 
 ### Calculate the number of knots
@@ -168,7 +168,7 @@ gBS= ggplot(preds.BS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19,y=0.9, size = 10, label = "b") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.75, size = 10, label = "b") +ylim(c(0,1))
 
 ### Calculate the number of knots
 n= length(fit.PS$smooth[[1]]$knots)
@@ -195,7 +195,7 @@ gPS= ggplot(preds.PS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19,y=0.9, size = 10, label = "c") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.75, size = 10, label = "c") +ylim(c(0,1))
 
 ### Draw the Smoothing spline plot
 gSS= ggplot(preds.SS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
@@ -218,7 +218,7 @@ gSS= ggplot(preds.SS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19,y=0.9, size = 10, label = "d") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.75, size = 10, label = "d") +ylim(c(0,1))
 
 ### Create an pseudo plot to get the legend 
 p1=  ggplot(preds.SS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
@@ -241,7 +241,7 @@ p1=  ggplot(preds.SS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_blank(),
         legend.position = "bottom") + 
-  annotate("text",x = 19,y=0.9, size = 10, label = "d") +ylim(c(0,1))
+  annotate("text",x = 19,y=0.75, size = 10, label = "d") +ylim(c(0,1))
 
 ### Get the legend from the pseudo-plot 
 legend = gtable_filter(ggplotGrob(p1), "guide-box") 
@@ -319,7 +319,7 @@ gRCS_absolute_diff= ggplot(absolute_diff_RCS,aes(x = BMI, fit.diff)) +geom_line(
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19,y=0.4, size = 10, label = "a") + ylim(c(-0.8,0.5))
+  annotate("text",x = 19,y=0.75, size = 10, label = "a") + ylim(c(-1,1))
 
 n= length(fit.BS$smooth[[1]]$knots)
 
@@ -344,7 +344,7 @@ gBS_absolute_diff= ggplot(absolute_diff_BS,aes(x = BMI, fit.diff))+geom_line()+
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19,y=0.4, size = 10, label = "b")  + ylim(c(-0.8,0.5))
+  annotate("text",x = 19,y=0.75, size = 10, label = "b")  + ylim(c(-1,1))
 
 n= length(fit.PS$smooth[[1]]$knots)
 gPS_absolute_diff= ggplot(absolute_diff_PS,aes(x = BMI, fit.diff)) +geom_line()+ 
@@ -368,7 +368,7 @@ gPS_absolute_diff= ggplot(absolute_diff_PS,aes(x = BMI, fit.diff)) +geom_line()+
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19,y=0.4, size = 10, label = "c")  + ylim(c(-0.8,0.5))
+  annotate("text",x = 19,y=0.75, size = 10, label = "c")  + ylim(c(-1,1))
 
 
 gSS_absolute_diff= ggplot(absolute_diff_SS,aes(x = BMI, fit.diff)) +geom_line()+ 
@@ -391,7 +391,7 @@ gSS_absolute_diff= ggplot(absolute_diff_SS,aes(x = BMI, fit.diff)) +geom_line()+
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
-  annotate("text",x = 19,y=0.4, size = 10, label = "d")  + ylim(c(-0.8,0.5))
+  annotate("text",x = 19,y=0.75, size = 10, label = "d")  + ylim(c(-1,1))
 
 
 

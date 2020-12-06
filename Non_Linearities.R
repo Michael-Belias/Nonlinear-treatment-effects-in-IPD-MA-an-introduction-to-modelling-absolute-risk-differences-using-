@@ -711,8 +711,8 @@ point.wise.DF.RCS.plot = point.wise.DF.RCS%>%
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("a", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
-            mapping = aes(x=0, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size=18)
+            mapping = aes(x=0, y = 0.75, label = label), 
+            inherit.aes = F, hjust   = -0.1,vjust   = -1, size=18)+ ylim(c(0,1))
 
 
 
@@ -736,7 +736,7 @@ p1=  ggplot(point.wise.DF.RCS,aes(x = age, y = RE.meta, linetype =treat, color =
         legend.key.width = unit(1.5,"cm"),
         legend.text=element_text(size=28, hjust = 0), 
         legend.title =element_blank(), 
-        legend.position = "bottom")
+        legend.position = "bottom")+ ylim(c(0,1))
 
 p1
 legend = gtable_filter(ggplotGrob(p1), "guide-box") 
@@ -764,8 +764,8 @@ point.wise.DF.BS.plot = point.wise.DF.BS%>%
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("b", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
-            mapping = aes(x=0, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size=18)
+            mapping = aes(x=0, y = 0.75, label = label), 
+            inherit.aes = F, hjust   = -0.1,vjust   = -1, size=18)+ ylim(c(0,1))
 
 
 point.wise.DF.PS.plot = point.wise.DF.PS%>%
@@ -790,8 +790,8 @@ point.wise.DF.PS.plot = point.wise.DF.PS%>%
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("c", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
-            mapping = aes(x=0, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size=18)
+            mapping = aes(x=0, y = 0.75, label = label), 
+            inherit.aes = F, hjust   = -0.1,vjust   = -1, size=18)+ ylim(c(0,1))
 
 
 
@@ -817,8 +817,8 @@ point.wise.DF.SS.plot = point.wise.DF.SS%>%
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none")+ 
   geom_text(data= data.frame( label = c("d", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
-            mapping = aes(x=0, y = 0.4, label = label), 
-            inherit.aes = F, hjust   = -0.1,vjust   = -1, size=18)
+            mapping = aes(x=0, y = 0.75, label = label), 
+            inherit.aes = F, hjust   = -0.1,vjust   = -1, size=18)+ ylim(c(0,1))
   
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 14.png",width = 1240, height = 1680) 
 
@@ -999,7 +999,7 @@ point.wise.absolute_diff_RCS.Empirical.plot = point.wise.absolute_diff_RCS.Empir
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("a", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.4, label = label), size=18)+ ylim(c(-0.8,0.8))
+            mapping = aes(x=0.3, y = 0.75, label = label), size=18)+ ylim(c(-1,1))
 point.wise.absolute_diff_RCS.Empirical.plot
 
 point.wise.absolute_diff_BS.Empirical.plot = point.wise.absolute_diff_BS.Empirical%>%
@@ -1026,7 +1026,7 @@ point.wise.absolute_diff_BS.Empirical.plot = point.wise.absolute_diff_BS.Empiric
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("b", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.4, label = label),  size=18)+ ylim(c(-0.8,0.8))
+            mapping = aes(x=0.3, y = 0.75, label = label),  size=18)+ ylim(c(-1,1))
 
 
 point.wise.absolute_diff_PS.Empirical.plot = point.wise.absolute_diff_PS.Empirical%>%
@@ -1053,7 +1053,7 @@ point.wise.absolute_diff_PS.Empirical.plot = point.wise.absolute_diff_PS.Empiric
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("c", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.4, label = label), size=18)+ ylim(c(-0.8,0.8))
+            mapping = aes(x=0.3, y = 0.75, label = label), size=18)+ ylim(c(-1,1))
 
 
 
@@ -1081,7 +1081,7 @@ point.wise.absolute_diff_SS.Empirical.plot = point.wise.absolute_diff_SS.Empiric
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("d", ""),bilat_0   = levels(point.wise.DF.PS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.4, label = label), size=18)+ ylim(c(-0.8,0.8))
+            mapping = aes(x=0.3, y = 0.75, label = label), size=18)+ ylim(c(-1,1))
 
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 15.png",width = 1240, height = 1680) 
 
@@ -1202,7 +1202,7 @@ mv.fit.RCS.miniIPD= mvmeta(estimated.coefficients.miniIPD, S.miniIPD,control = l
 new.dat= data.frame(age= rep(seq(0,9,length.out = 40),each = 20),
                     treat = rep(unique(miniIPD$treat),400), 
                     bilat_0 =  rep(rep(unique(miniIPD$bilat_0),each=2),200),
-                    study =  rep(rep(unique(miniIPD$study),each =4),40), 
+                    study =  rep(rep(unique(miniIPD$study),each =4),50), 
                     poutcome = rep(c(0,1),400)
 )
 
@@ -1254,8 +1254,8 @@ g.mvmeta.total.RCS = ggplot(mvmeta.df.RCS,aes(x = age, fit, linetype= treat, col
         legend.title =element_blank(),
         legend.position = "none")  + 
   geom_text(data= data.frame( label = c("a", ""),bilat_0   = levels(mvmeta.df.RCS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.6, label = label), 
-            inherit.aes = F,size=18)
+            mapping = aes(x=0.3, y = 0.75, label = label), 
+            inherit.aes = F,size=18)+ ylim(c(0,1))
 
 
 g.mvmeta.total.RCS
@@ -1331,7 +1331,7 @@ rm(k,j)
 new.dat= data.frame(age= rep(seq(0,9,length.out = 40),each = 20),
                     treat = rep(unique(miniIPD$treat),400), 
                     bilat_0 =  rep(rep(unique(miniIPD$bilat_0),each=2),200),
-                    study =  rep(rep(unique(miniIPD$study),each =4),40), 
+                    study =  rep(rep(unique(miniIPD$study),each =4),50), 
                     poutcome = rep(c(0,1),400)
 )
 
@@ -1387,8 +1387,8 @@ g.mvmeta.total.BS = ggplot(mvmeta.df.BS,aes(x = age, fit, linetype= treat, color
         legend.title =element_blank(),
         legend.position = "none")   + 
   geom_text(data= data.frame( label = c("b", ""),bilat_0   = levels(mvmeta.df.RCS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.6, label = label), 
-            inherit.aes = F, size=18)
+            mapping = aes(x=0.3, y = 0.75, label = label), 
+            inherit.aes = F, size=18)+ ylim(c(0,1))
 
 g.mvmeta.total.BS
 
@@ -1413,7 +1413,7 @@ p1= ggplot(mvmeta.df.BS,aes(x = age, fit, linetype= treat, color= treat)) +
         legend.title =element_blank(),
         legend.position = "bottom") + 
   geom_text(data= data.frame( label = c("", "a"),bilat_0   = mvmeta.df.BS$bilat_0[c(1,3)]),
-            mapping = aes(x=0.3, y = 0.4, label = label), 
+            mapping = aes(x=0.3, y = 0.75, label = label), 
             inherit.aes = F, hjust   = -0.1,vjust   = -15, size=18)
 
 
@@ -1481,8 +1481,8 @@ MV.meta_absolute_difference.RCS.plot = ggplot(MV.meta_absolute_difference.RCS,ae
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("a", ""),bilat_0   = levels(MV.meta_absolute_difference.RCS$bilat_0)),
-            mapping = aes(x=0.3,  y = 0.4, label = label), 
-            inherit.aes = F,  size=18)+ ylim(c(-0.8,0.8))
+            mapping = aes(x=0.3,  y = 0.75, label = label), 
+            inherit.aes = F,  size=18)+ ylim(c(-1,1))
 
 MV.meta_absolute_difference.BS.plot = ggplot(MV.meta_absolute_difference.BS,aes(x = age, fit.diff)) +
   geom_line(size=2)+ facet_wrap(.~bilat_0)+
@@ -1506,8 +1506,8 @@ MV.meta_absolute_difference.BS.plot = ggplot(MV.meta_absolute_difference.BS,aes(
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("b", ""),bilat_0   = levels(MV.meta_absolute_difference.RCS$bilat_0)),
-            mapping = aes(x=0.3,  y = 0.4, label = label), 
-            inherit.aes = F,  size=18)+ ylim(c(-0.8,0.8))
+            mapping = aes(x=0.3,  y = 0.75, label = label), 
+            inherit.aes = F,  size=18)+ ylim(c(-1,1))
 
 
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 17.png",width = 1240, height = 1680) 
@@ -1654,8 +1654,8 @@ g.GAMM.RCS = ggplot(preds.RCS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("a", ""),bilat_0   = levels(preds.RCS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.4, label = label), 
-            inherit.aes = F, size=18)
+            mapping = aes(x=0.3, y = 0.75, label = label), 
+            inherit.aes = F, size=18) + ylim(c(0,1))
 
 
 g.GAMM.BS = ggplot(preds.BS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
@@ -1679,8 +1679,8 @@ g.GAMM.BS = ggplot(preds.BS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("b", ""),bilat_0   = levels(preds.RCS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.4, label = label), 
-            inherit.aes = F,size=18)
+            mapping = aes(x=0.3, y = 0.75, label = label), 
+            inherit.aes = F,size=18)+ ylim(c(0,1))
 
 
 g.GAMM.PS =ggplot(preds.PS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
@@ -1704,8 +1704,8 @@ g.GAMM.PS =ggplot(preds.PS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ g
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("c", ""),bilat_0   = levels(preds.RCS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.4, label = label), 
-            inherit.aes = F, size=18)
+            mapping = aes(x=0.3, y = 0.75, label = label), 
+            inherit.aes = F, size=18)+ ylim(c(0,1))
 
 
 g.GAMM.SS = ggplot(preds.SS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
@@ -1729,8 +1729,8 @@ g.GAMM.SS = ggplot(preds.SS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("d", ""),bilat_0   = levels(preds.RCS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.4, label = label), 
-            inherit.aes = F, size=18)
+            mapping = aes(x=0.3, y = 0.75, label = label), 
+            inherit.aes = F, size=18)+ ylim(c(0,1))
 
 p1= ggplot(preds.SS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_line()+
   geom_ribbon(data = preds.SS, aes(ymin = lower,ymax=upper),alpha=0.2) +
@@ -1753,7 +1753,7 @@ p1= ggplot(preds.SS, aes(age,fit, color= treat))+ facet_wrap(~bilat_0)+ geom_lin
         legend.title =element_blank(),
         legend.position = "bottom") + 
   geom_text(data= data.frame( label = c("", "d"),bilat_0   = preds.SS$bilat_0[c(1,3)]),
-            mapping = aes(x=0.3, y = 0.4, label = label), 
+            mapping = aes(x=0.3, y = 0.75, label = label), 
             inherit.aes = F,  size=18)
 
 p1
@@ -1830,8 +1830,8 @@ g.GAMM.RCS.diff = ggplot(predictions.diff.RCS, aes(age,fit.diff))+ facet_wrap(~b
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("a", ""),
                               bilat_0   = levels(predictions.diff.RCS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.4, label = label), 
-            inherit.aes = F, size=18)+ ylim(c(-0.8,0.8))
+            mapping = aes(x=0.3, y = 0.75, label = label), 
+            inherit.aes = F, size=18)+ ylim(c(-1,1))
 
 
 g.GAMM.BS.diff = ggplot(predictions.diff.BS, aes(age,fit.diff))+ facet_wrap(~bilat_0)+ geom_line()+geom_hline(yintercept = 0,linetype=2)+
@@ -1856,8 +1856,8 @@ g.GAMM.BS.diff = ggplot(predictions.diff.BS, aes(age,fit.diff))+ facet_wrap(~bil
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("b", ""),
                               bilat_0   = levels(predictions.diff.RCS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.4, label = label), 
-            inherit.aes = F, size=18)+ ylim(c(-0.8,0.8))
+            mapping = aes(x=0.3, y = 0.75, label = label), 
+            inherit.aes = F, size=18)+ ylim(c(-1,1))
 
 
 
@@ -1883,8 +1883,8 @@ g.GAMM.PS.diff = ggplot(predictions.diff.PS, aes(age,fit.diff))+ facet_wrap(~bil
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("c", ""),
                               bilat_0   = levels(predictions.diff.RCS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.4, label = label), 
-            inherit.aes = F, size=18)+ ylim(c(-0.8,0.8))
+            mapping = aes(x=0.3, y = 0.75, label = label), 
+            inherit.aes = F, size=18)+ ylim(c(-1,1))
 
 
 
@@ -1911,8 +1911,8 @@ g.GAMM.SS.diff = ggplot(predictions.diff.SS, aes(age,fit.diff))+ facet_wrap(~bil
         legend.position = "none") + 
   geom_text(data= data.frame( label = c("d", ""),
                               bilat_0   = levels(predictions.diff.RCS$bilat_0)),
-            mapping = aes(x=0.3, y = 0.4, label = label), 
-            inherit.aes = F, size=18)+ ylim(c(-0.8,0.8))
+            mapping = aes(x=0.3, y = 0.75, label = label), 
+            inherit.aes = F, size=18)+ ylim(c(-1,1))
 
 
 
