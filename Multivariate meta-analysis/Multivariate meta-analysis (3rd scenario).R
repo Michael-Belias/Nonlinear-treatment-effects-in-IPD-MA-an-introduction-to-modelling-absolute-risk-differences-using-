@@ -1,6 +1,10 @@
 ###--------------------MVmeta--------------------------------------
 
 source("Code for Figures, Tables, Analysis and data-simulation/Simulated datasets/Third scenario data-set.R")
+#Introduce the expit function to back-transform from logit scale
+
+expit<-function(rs) {1/(1+exp(-rs))}
+
 #rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")])
 ### Introduce the expit function to back-transform from logit scale
 
@@ -39,6 +43,9 @@ rep.upper$Study = rep(unique(df3$Study)[-5], each= n.upper)
 
 ## And we add them to the original data-set.
 
+### RCS  
+### Define the knots position in 5%, 27.5%,  50%, 72.5% and 95% quantiles of BMI
+Knots.RCS.df3 =   list(BMI=quantile(df3$BMI, probs = c(0.05,0.275,0.5,0.725,0.95))) 
 
 df3 =  rbind(df3, rep.lower, rep.upper)
 ## Now each study has values near the boundaries of BMI [18.5,40]
@@ -50,11 +57,8 @@ df3 =  rbind(df3, rep.lower, rep.upper)
 
 ### remove the object we don't need
 
-rm(lower,upper, rep.lower,rep.upper)
+rm(lower,upper, rep.lower,rep.upper,n.lower, n.upper)
 
-### RCS  
-### Define the knots position in 5%, 27.5%,  50%, 72.5% and 95% quantiles of BMI
-Knots.RCS.df3 =   list(BMI=quantile(df3$BMI, probs = c(0.05,0.275,0.5,0.725,0.95))) 
 
 ## The formula for all Studies is the same so we save it 
 
@@ -175,9 +179,9 @@ nstudies.BS.df3 = length(unique(df3$Study))
 
 fit.BS.df3 = gam( formula =formula.BS,
                   family = binomial("logit"), 
-                  data = df3)
+                  data = df3[df3$weight==1,])
 
-Knots.BS.df3 =  list(BMI =fit.BS.df3$smooth[[1]]$knots)
+Knots.BS.df3 =  list(BMI=c(4.18, 11.34, 18.50, 25.66, 32.84, 40, 47.16, 54.32))
 
 ### Get the model matrices for each data-set
 
@@ -231,7 +235,7 @@ prediction.interval.mvmeta.lower.BS.df3 =  X.p.BS.df3 %*% coef(mv.fit.BS.df3) - 
 prediction.interval.mvmeta.upper.BS.df3 =  X.p.BS.df3 %*% coef(mv.fit.BS.df3) + sqrt( rowSums(X.p.BS.df3  * (X.p.BS.df3  %*% vcov(mv.fit.BS.df3)))) * qt(0.025, dim(df3)[1] - 3)
 
 
-mvmeta.df3.BS = cbind(df3[,c("Study","BMI","Treatment")],
+mvmeta.df3.BS = cbind(df3[df3$weight==1,c("Study","BMI","Treatment")],
                       fit =  expit(prediction.interval.mvmeta.BS.df3), 
                       Lower= expit(prediction.interval.mvmeta.lower.BS.df3),
                       Upper =expit(prediction.interval.mvmeta.upper.BS.df3 ))

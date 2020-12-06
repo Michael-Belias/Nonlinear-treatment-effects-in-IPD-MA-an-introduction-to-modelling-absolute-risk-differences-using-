@@ -1,4 +1,10 @@
-### MVmeta
+###--------------------MVmeta--------------------------------------
+source("Code for Figures, Tables, Analysis and data-simulation/Simulated datasets/First scenario data-set.R")
+#Introduce the expit function to back-transform from logit scale
+
+expit<-function(rs) {1/(1+exp(-rs))}
+
+
 ### Clear enviroment 
 rm(list=ls()[! ls() %in% c("df1","df2","df3","expit")])
 
@@ -129,6 +135,11 @@ fit.BS.df1 = gam( formula =formula.BS,
 
 X.p.BS.df1 =  model.matrix(fit.BS.df1)
 
+
+### Save the knots to use the same per study
+Knots.BS.df =  list(BMI=c(4.18, 11.34, 18.50, 25.66, 32.84, 40, 47.16, 54.32)) 
+
+
 ### Create empty matrix for the estimated splines coefficients
 
 estimated.coefficients.BS.df1 = matrix(NA,
@@ -151,7 +162,9 @@ for( i in unique(df1$Study)){
     filter(Study == i)
   
   # Fit the GAM
-  fit = gam(formula = formula.BS , family = binomial("logit"), data = minidf1)
+  fit = gam(formula = formula.BS , 
+            family = binomial("logit"), 
+            data = minidf1)
   ### Extract the coefficients and their standard errors for mvmeta
   estimated.coefficients.BS.df1[j,] = fit$coefficients
   S.BS.df1[j,] = vcov(fit)[lower.tri(vcov(fit), diag = T)]

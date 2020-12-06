@@ -409,7 +409,7 @@ linear.Models =  miniIPD.linear%>%
   droplevels(miniIPD.linear$study)%>% 
   arrange(desc(study))%>%
   group_by(study) %>%
-  do(model = glm(formula = poutcome ~ treat + bilat_0 + treat*bilat_0  + age , 
+  do(model = glm(formula = poutcome ~  treat + bilat_0 + age + treat*bilat_0 + age*treat + age*bilat_0 + age*bilat_0, 
                  family = binomial("logit"), data = .))
 
 
@@ -418,7 +418,7 @@ RCS = miniIPD.splines%>%
   droplevels(miniIPD.splines$study)%>% 
   arrange(desc(study))%>%
   group_by(study) %>%
-  do(model = gam(formula = poutcome ~   treat + bilat_0 + treat*bilat_0  + age +
+  do(model = gam(formula = poutcome ~   treat + bilat_0 + age + treat*bilat_0 + age*treat + age*bilat_0 + 
                    s(age, by = bilat_0, bs="cr",fx=T,  k=3)+
                    s(age, by = treat, bs="cr",fx=T, k=3), 
                  knots = list(age=quantile(.$age, probs = c(0.1,0.5,0.9))), 
@@ -432,7 +432,7 @@ BS = miniIPD.splines%>%
   droplevels(miniIPD.splines$study)%>% 
   arrange(desc(study))%>%
   group_by(study) %>%
-  do(model = gam(formula = poutcome ~ treat + bilat_0 + treat*bilat_0  + age +
+  do(model = gam(formula = poutcome ~  treat + bilat_0 + age + treat*bilat_0 + age*treat + age*bilat_0 + 
                    s(age, by = treat,fx = T, bs="bs",k=3,m= c(1,0))+
                    s(age, by = bilat_0,fx = T, bs="bs",k=3,m= c(1,0)),
                  family = binomial("logit"),
@@ -446,7 +446,7 @@ PS = miniIPD.splines%>%
   droplevels(miniIPD.splines$study)%>% 
   arrange(desc(study))%>%
   group_by(study) %>%
-  do(model = gam(formula = poutcome ~ treat + bilat_0 + treat*bilat_0  + age +
+  do(model = gam(formula = poutcome ~  treat + bilat_0 + age + treat*bilat_0 + age*treat + age*bilat_0 + 
                    s(age, by = treat,   bs="ps",fx = F,k=17)+
                    s(age, by = bilat_0, bs="ps",fx = F,k=17), 
                  family = binomial("logit"), data = ., 
@@ -457,7 +457,7 @@ SS= miniIPD.splines%>%
   droplevels(miniIPD.splines$study)%>% 
   arrange(desc(study))%>%
   group_by(study) %>%
-  do(model = gam(formula = poutcome ~ treat + bilat_0 + treat*bilat_0  + age +
+  do(model = gam(formula = poutcome ~  treat + bilat_0 + age + treat*bilat_0 + age*treat + age*bilat_0 + 
                    s(age, by = treat,   bs="tp",fx = F,k=5)+
                    s(age, by = bilat_0, bs="tp",fx = F,k=5), 
                  family = binomial("logit"), data = ., 
@@ -1130,7 +1130,7 @@ Knots.miniIPD =   list(age=quantile(miniIPD$age, probs = c(0.1,0.5,0.9)))
 
 ## The formula for all regions is the same so we save it 
 
-formula = poutcome ~  treat + bilat_0 + treat*bilat_0  + age + 
+formula = poutcome ~  treat + bilat_0 + age + treat*bilat_0 + age*treat + age*bilat_0 + 
   s(age, by = bilat_0, bs="cr",fx=T,  k=3)+
   s(age, by = treat, bs="cr",fx=T, k=3)
 
@@ -1202,7 +1202,7 @@ mv.fit.RCS.miniIPD= mvmeta(estimated.coefficients.miniIPD, S.miniIPD,control = l
 new.dat= data.frame(age= rep(seq(0,9,length.out = 40),each = 20),
                     treat = rep(unique(miniIPD$treat),400), 
                     bilat_0 =  rep(rep(unique(miniIPD$bilat_0),each=2),200),
-                    study =  rep(rep(unique(miniIPD$study),each =4),50), 
+                    study =  rep(rep(unique(miniIPD$study),each =4),40), 
                     poutcome = rep(c(0,1),400)
 )
 
@@ -1269,7 +1269,7 @@ g.mvmeta.total.RCS
 
 ## The formula for all regions is the same so we save it 
 
-formula = poutcome ~  treat+ bilat_0 + treat*bilat_0  + 
+formula = poutcome ~  treat + bilat_0 + age + treat*bilat_0 + age*treat + age*bilat_0 + 
   age+ 
   s(age, by = bilat_0, bs="bs",fx=T,  k=4, m= c(2,0))+
   s(age, by = treat, bs="bs",fx=T, k=4, m= c(2,0))
@@ -1298,8 +1298,6 @@ estimated.coefficients.miniIPD = matrix(NA,
 ### Create empty matrices for the variance-covariance matrix of the coefficients
 
 S.miniIPD = matrix(NA, ncol=sum(c(1:length(fit.miniIPD$coefficients))), nrow = nstudies.miniIPD )
-
-
 
 
 k=3
@@ -1333,7 +1331,7 @@ rm(k,j)
 new.dat= data.frame(age= rep(seq(0,9,length.out = 40),each = 20),
                     treat = rep(unique(miniIPD$treat),400), 
                     bilat_0 =  rep(rep(unique(miniIPD$bilat_0),each=2),200),
-                    study =  rep(rep(unique(miniIPD$study),each =4),50), 
+                    study =  rep(rep(unique(miniIPD$study),each =4),40), 
                     poutcome = rep(c(0,1),400)
 )
 
@@ -1537,8 +1535,7 @@ Knots.RCS = list (age = quantile(IPDMA$age , probs = c(0.1,0.5,0.9)))
 Knots.BS  = list (age = c(-9.2, -4.6,  0,  4.6,  9.2, 13.7, 18.3))
 
 
-fit.RCS <- gam(formula = poutcome ~  treat * bilat_0  + 
-                 treat *age+ 
+fit.RCS <- gam(formula = poutcome ~   treat + bilat_0 + age + treat*bilat_0 + age*treat + age*bilat_0 + 
                  s(age, by = bilat_0, bs="cr", k=3, fx=T )+
                  s(age, by = treat, bs="cr", k=3, fx=T ) + 
                  s(age,by =  as.numeric(study),  bs="re")+
@@ -1549,8 +1546,7 @@ fit.RCS <- gam(formula = poutcome ~  treat * bilat_0  +
                method="REML")
 
 
-fit.BS <- gam(formula = poutcome ~  treat * bilat_0  + 
-                treat *age+ 
+fit.BS <- gam(formula = poutcome ~   treat + bilat_0 + age + treat*bilat_0 + age*treat + age*bilat_0 + 
                 s(age, by = bilat_0, bs="bs", k=4, m= c(2,0), fx=T)+
                 s(age, by = treat, bs="bs",k=4, m= c(2,0), fx=T) + 
                 s(age,by =  as.numeric(study),  bs="re")+
@@ -1560,8 +1556,7 @@ fit.BS <- gam(formula = poutcome ~  treat * bilat_0  +
               family = binomial("logit"), data = miniIPD,knots = Knots.BS,
               method="REML")
 
-fit.PS <- gam(formula = poutcome ~ treat * bilat_0  + 
-                treat *age+ 
+fit.PS <- gam(formula = poutcome ~  treat + bilat_0 + age + treat*bilat_0 + age*treat + age*bilat_0 + 
                 s(age, by = bilat_0, bs="ps", k=17)+
                 s(age, by = treat, bs="ps", k=17) + 
                 s(treat,by = bilat_0, bs= "fs")+
@@ -1572,8 +1567,7 @@ fit.PS <- gam(formula = poutcome ~ treat * bilat_0  +
               method="REML")
 
 
-fit.SS <-  gam(formula = poutcome ~  treat * bilat_0  + 
-                 treat *age+ 
+fit.SS <-  gam(formula = poutcome ~   treat + bilat_0 + age + treat*bilat_0 + age*treat + age*bilat_0 + 
                  s(age, by = bilat_0, bs="tp")+
                  s(age, by = treat, bs="tp") + 
                  s(treat,by = bilat_0, bs= "fs")+

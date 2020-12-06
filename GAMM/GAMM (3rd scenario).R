@@ -9,7 +9,7 @@ Knots= list (BMI = (quantile(df3$BMI , probs = c(0.05,0.275,0.5,0.725,0.95))))
 
 
 
-fit.RCS.Combined = gam(Y~  BMI+ Treatment+ 
+fit.RCS.Combined = gam(Y~  BMI + Treatment + BMI*Treatment + 
                          s(BMI,by = Treatment,bs="cr",fx = T, k = 5) +  
                          s(Study,bs = "re") +  
                          s(Study,BMI,bs = "re")+  
@@ -17,7 +17,7 @@ fit.RCS.Combined = gam(Y~  BMI+ Treatment+
                        family = binomial("logit"), data = df3, nthreads = 8, method = "REML")
 
 
-fit.BS.Combined = gam(Y~  BMI+ Treatment+ 
+fit.BS.Combined = gam(Y~  BMI + Treatment + BMI*Treatment + 
                         s(BMI,by = Treatment,fx = T,bs="bs",k=5, m=c(2,0)) +  
                         s(Study,bs = "re") +  
                         s(Study,BMI,bs = "re")+  
@@ -25,7 +25,7 @@ fit.BS.Combined = gam(Y~  BMI+ Treatment+
                       family = binomial("logit"), data = df3, nthreads = 8, method = "REML")
 
 
-fit.PS.Combined = gam(Y~  BMI+ Treatment+ 
+fit.PS.Combined = gam(Y~  BMI + Treatment + BMI*Treatment + 
                         s(BMI,by = Treatment,bs="ps", k = 19) +  
                         s(Study,bs = "re") +  
                         s(Study,BMI,bs = "re")+  
@@ -33,7 +33,7 @@ fit.PS.Combined = gam(Y~  BMI+ Treatment+
                       family = binomial("logit"), data = df3, nthreads = 8, method = "REML")
 
 
-fit.SS.Combined = gam(Y~  BMI+ Treatment+ 
+fit.SS.Combined = gam(Y~  BMI + Treatment + BMI*Treatment + 
                         s(BMI,by = Treatment,bs="tp") +  
                         s(Study,bs = "re") +  
                         s(Study,BMI,bs = "re")+  

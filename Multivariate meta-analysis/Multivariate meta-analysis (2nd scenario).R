@@ -1,10 +1,11 @@
 ###--------------------MVmeta--------------------------------------
 
 source("Code for Figures, Tables, Analysis and data-simulation/Simulated datasets/Second scenario data-set.R")
-#rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")])
-### Introduce the expit function to back-transform from logit scale
+#Introduce the expit function to back-transform from logit scale
 
 expit<-function(rs) {1/(1+exp(-rs))}
+
+#rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")])
 
 
 ## We follow White et al. and Riley et al. recommendations and we performed data augmentation
@@ -36,6 +37,12 @@ head(rep.lower); head(rep.upper)
 rep.lower$Study = rep(unique(df2$Study)[-1], each= n.lower)
 rep.upper$Study = rep(unique(df2$Study)[-5], each= n.upper)
 
+
+### RCS  
+### Define the knots position in 5%, 27.5%,  50%, 72.5% and 95% quantiles of BMI
+Knots.RCS.df2 =   list(BMI=quantile(df2$BMI, probs = c(0.05,0.275,0.5,0.725,0.95))) 
+
+
 ## And we add them to the original data-set.
 
 
@@ -50,11 +57,6 @@ df2 =  rbind(df2, rep.lower, rep.upper)
 ### remove the object we don't need
 
 rm(lower,upper, rep.lower,rep.upper)
-
-
-### RCS  
-### Define the knots position in 5%, 27.5%,  50%, 72.5% and 95% quantiles of BMI
-Knots.RCS.df2 =   list(BMI=quantile(df2$BMI, probs = c(0.05,0.275,0.5,0.725,0.95))) 
 
 
 
@@ -184,7 +186,7 @@ X.p.BS.df2 =  model.matrix(fit.BS.df2)
 
 
 ### Get the knots from the overall model to use the same per study
-Knots.BS.df2 =  list(BMI=fit.BS.df2$smooth[[1]]$knots) 
+Knots.BS.df2 =  list(BMI=c(4.18, 11.34, 18.50, 25.66, 32.84, 40, 47.16, 54.32)) 
 
 
 

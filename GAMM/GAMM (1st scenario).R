@@ -12,14 +12,14 @@ Knots= list (BMI = (quantile(df1$BMI , probs = c(0.05,0.275,0.5,0.725,0.95))))
 
 
 
-fit.RCS.HT = gam(Y ~BMI+ Treatment+ 
+fit.RCS.HT = gam(Y ~BMI + Treatment + BMI*Treatment + 
                    s(BMI,by = Treatment,fx = T,bs="cr",k = 5) +  
                    s(Study,bs = "re") +  
                    s(Study,BMI,bs = "re")+  
                    s(Study,Treatment,bs = "re"),knots = Knots,
                  family = binomial("logit"),data = df1, nthreads = 8, method = "REML")
 
-fit.BS.HT = gam(Y ~BMI+ Treatment+ 
+fit.BS.HT = gam(Y ~BMI + Treatment + BMI*Treatment + 
                   s(BMI,by = Treatment,fx = T,bs="bs",k=5, m=c(2,0)) +  
                   s(Study,bs = "re") +  
                   s(Study,BMI,bs = "re")+  
@@ -27,7 +27,7 @@ fit.BS.HT = gam(Y ~BMI+ Treatment+
                 family = binomial("logit"), data = df1, nthreads = 8, method = "REML")
 
 
-fit.PS.HT = gam(Y ~BMI+ Treatment+ 
+fit.PS.HT = gam(Y ~BMI + Treatment + BMI*Treatment + 
                   s(BMI,by = Treatment,fx = F,bs="ps",k=17) +  
                   s(Study,bs = "re") +  
                   s(Study,BMI,bs = "re")+  
@@ -35,7 +35,7 @@ fit.PS.HT = gam(Y ~BMI+ Treatment+
                 family = binomial("logit"), data = df1, nthreads = 8, method = "REML")
 
 
-fit.SS.HT = gam(Y ~BMI+ Treatment+ 
+fit.SS.HT = gam(Y ~BMI + Treatment + BMI*Treatment + 
                   s(BMI,by = Treatment,bs="tp") +  
                   s(Study,bs = "re") +  
                   s(Study,BMI,bs = "re")+  
