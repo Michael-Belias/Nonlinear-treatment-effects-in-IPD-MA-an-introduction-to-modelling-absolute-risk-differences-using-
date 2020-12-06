@@ -3,7 +3,8 @@
 ####################
 
 
-#rm(list=ls()[! ls() %in% c("df1","df2","df3","expit")]) ### To clear all environment besides the data-set
+source("Code for Figures, Tables, Analysis and data-simulation/Simulated datasets/Third scenario data-set.R")
+#rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")]) ### To clear all environment besides the data-set
 Knots= list (BMI = (quantile(df3$BMI , probs = c(0.05,0.275,0.5,0.725,0.95))))
 
 
@@ -262,7 +263,7 @@ GAMM.DF.RCS.Comb.diff.plot = absolute_diff_RCS.Comb%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19,y=0.2, size = 10, label = "a")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "a")+ ylim(c(-1,1))
 
 
 
@@ -287,7 +288,7 @@ GAMM.DF.BS.Comb.diff.plot=absolute_diff_BS.Comb%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19,y=0.2, size = 10, label = "b")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "b")+ ylim(c(-1,1))
 
 
 GAMM.DF.PS.Comb.diff.plot=absolute_diff_PS.Comb%>%
@@ -310,7 +311,7 @@ GAMM.DF.PS.Comb.diff.plot=absolute_diff_PS.Comb%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19,y=0.2, size = 10,label = "c")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10,label = "c")+ ylim(c(-1,1))
 
 
 GAMM.DF.SS.Comb.diff.plot=absolute_diff_SS.Comb%>%
@@ -333,7 +334,7 @@ GAMM.DF.SS.Comb.diff.plot=absolute_diff_SS.Comb%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19,y=0.2, size = 10, label = "d")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "d")+ ylim(c(-1,1))
 
 
 

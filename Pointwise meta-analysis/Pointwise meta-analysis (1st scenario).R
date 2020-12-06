@@ -10,17 +10,6 @@ rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")])
 
 expit<-function(rs) {1/(1+exp(-rs))}
 
-## We create 3 lists with the corresponding knots positions for RCS, BS, PS respectively. 
-## For RCS we follow Harrel's suggestion and use the 5th, 27.5th 50th, 72.5th and 95th percentiles.
-
-## 5 knots in RCS (per treatment arm) correspond to 10 degrees of freedom spent
-Knots.RCS.HT =list(BMI = quantile(df1$BMI, probs = c(0.05,0.275,0.5,0.725,0.95))) 
-
-## 2 inner + boundaries in 2nd degree B-splines correspond to 10 degrees of freedom spent
-Knots.BS.HT = list(BMI= c(4.00, 11.25, 18.50, 25.75, 33.00, 40.25, 47.50, 54.75)) 
-
-## 
-Knots.PS.HT = list(BMI= c(15.5,17,18.5,20,21.5,23,24.5,26,27.5,29,30.5,32,33.5,35,36.5,38,39.5,41,42.5,44)) 
 
 
 ## ----Pointwise neta-analysis --------------------------------------------------------------------------------------
@@ -33,8 +22,8 @@ Knots.PS.HT = list(BMI= c(15.5,17,18.5,20,21.5,23,24.5,26,27.5,29,30.5,32,33.5,3
 RCS.HT = df1%>%                                ### We call the data-set of the first scenario
   arrange(desc(Study))%>%                      ### Order the date based on study                
   group_by(Study) %>%                          ### Group them based on study   
-  do(model = gam(Y~ BMI + Treatment+ s(BMI,bs ="cr",fx=T,by = Treatment,k = 5),     ### For each study we fit a RCS 
-                 knots = Knots.RCS.HT,          ### For all studies we the same specifications for knots
+  do(model = gam(Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="cr",fx=T,by = Treatment,k = 4),     ### For each study we fit RCS 
+                 knots = list(BMI = quantile(.$BMI, probs = c(0.05,0.35,0.65,0.95))), 
                  family = binomial("logit"),   ### Note that in pointwise meta-analysis one can use different modelling techniques per study
                  data = .,                     ### different models per study 
                  method="REML" ))              
@@ -44,8 +33,7 @@ RCS.HT = df1%>%                                ### We call the data-set of the f
 BS.HT = df1%>%                                 ### We call the data-set of the first scenario
   arrange(desc(Study))%>%                      ### Order the date based on study 
   group_by(Study) %>%                          ### Group them based on study   
-  do(model = gam(Y~ BMI + Treatment+ s(BMI,bs ="bs",fx=T,by = Treatment,m=c(2,0),k = 5), ### For each study we fit a B-splines 
-                 knots = Knots.BS.HT,          ### For all studies we the same specifications for knots
+  do(model = gam(Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="bs",fx=T,by = Treatment,m=c(2,0),k = 4), ### For each study we fit B-splines 
                  family = binomial("logit"), 
                  data = ., 
                  method="REML" ))
@@ -54,8 +42,7 @@ BS.HT = df1%>%                                 ### We call the data-set of the f
 PS.HT = df1%>%                                 ### We call the data-set of the first scenario
   arrange(desc(Study))%>%                      ### Order the date based on study 
   group_by(Study) %>%                          ### Group them based on study   
-  do(model = gam(Y~ BMI + Treatment+ s(BMI,bs ="ps",fx=F,by = Treatment,m=c(1,2),k = 17), ### For each study we fit a P-spline 
-                 knots = Knots.PS.HT,          ### For all studies we the same specifications for knots
+  do(model = gam(Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="ps",fx=F,by = Treatment,m=c(1,2),k = 17), ### For each study we fit P-spline 
                  family = binomial("logit"), 
                  data = ., 
                  method="REML" ))
@@ -64,16 +51,17 @@ PS.HT = df1%>%                                 ### We call the data-set of the f
 SS.HT = df1%>%
   arrange(desc(Study))%>%
   group_by(Study) %>%
-  do(model = gam(formula = Y~ BMI + Treatment+ s(BMI,bs ="tp",fx=F,by = Treatment), 
-                 family = binomial("logit"), data = ., 
+  do(model = gam(formula = Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="tp",fx=F,by = Treatment), 
+                 family = binomial("logit"), 
+                 data = ., 
                  method="REML" ))
 
 
 ## Create a data-set that will be used for estimating the predicted outcome
 
-new.dat= data.frame(BMI= rep(seq(18.5,40,length.out = 250),each = 10),
-                    Treatment = rep(unique(df1$Treatment),1250), 
-                    Study =  rep(rep(unique(df1$Study),each =2),250))
+new.dat= data.frame(BMI= rep(seq(18.5,40,length.out = 50),each = 10),
+                    Treatment = rep(unique(df2$Treatment),250), 
+                    Study =  rep(rep(unique(df2$Study),each =2),50))
 
 
 ## Calculate the predicted outcome per study (given the models fitted above)
@@ -289,7 +277,7 @@ point.wise.DF.SS.HT.plot = point.wise.DF.SS.HT%>%
         legend.position = "none") +  
   annotate("text",x = 19.25,y=0.9, size = 10, label = "d") +ylim(c(0,1))
 
-
+#grid.arrange(point.wise.DF.RCS.HT.plot,point.wise.DF.BS.HT.plot,point.wise.DF.PS.HT.plot,point.wise.DF.SS.HT.plot)
 
 ### Pseudo-plot to get legend
 p1=  point.wise.DF.SS.HT%>%
@@ -365,9 +353,13 @@ source("Assisting functions/Create risk differences.R")
 ### RCS
 ### Heterogeneous IPD-set with equal BMI ranges
 absolute_diff_RCS.HT = risk.diff.creator(dataframe = predictions.RCS.HT,
-                                         treatment = "Treatment", outcome = NULL,
+                                         treatment = "Treatment", 
+                                         outcome = NULL,
                                          matching.variables = c("BMI","Study"),
-                                         predicted.outcome = "fit", predicted.CI = c("Lower","Upper"))
+                                         predicted.outcome = "fit", 
+                                         predicted.CI = c("Lower","Upper"))
+
+
 ### B-splines
 ### Heterogeneous IPD-set with equal BMI ranges
 absolute_diff_BS.HT = risk.diff.creator(dataframe = predictions.BS.HT,
@@ -420,11 +412,17 @@ point.wise.absolute_diff_RCS.HT  =  pointwise.ma(data = absolute_diff_RCS.HT ,
                                                  clustering.variable = "Study",
                                                  combining.variables = c("BMI"),
                                                  predicted.outcome = "fit.diff",
-                                                 predicted.outcome.CI = c("diff.lower","diff.upper")
+                                                 predicted.outcome.CI = c("diff.lower","diff.upper"),
+                                                 tau.method = "REML"
 )
 
 point.wise.absolute_diff_RCS.HT =  point.wise.absolute_diff_RCS.HT%>%
   mutate(BMI =  as.numeric(BMI))
+
+
+
+
+
 
 ### Heterogeneous IPD-set with equal BMI ranges
 point.wise.absolute_diff_BS.HT  =  pointwise.ma(data = absolute_diff_BS.HT ,
@@ -432,7 +430,8 @@ point.wise.absolute_diff_BS.HT  =  pointwise.ma(data = absolute_diff_BS.HT ,
                                                 combining.variables = c("BMI"),
                                                 predicted.outcome = "fit.diff",
                                                 predicted.outcome.se = NULL,
-                                                predicted.outcome.CI = c("diff.lower","diff.upper")
+                                                predicted.outcome.CI = c("diff.lower","diff.upper"),
+                                                tau.method = "REML"
 )
 
 point.wise.absolute_diff_BS.HT =  point.wise.absolute_diff_BS.HT%>%
@@ -446,7 +445,8 @@ point.wise.absolute_diff_PS.HT  =  pointwise.ma(data = absolute_diff_PS.HT ,
                                                 combining.variables = c("BMI"),
                                                 predicted.outcome = "fit.diff",
                                                 predicted.outcome.se = NULL,
-                                                predicted.outcome.CI = c("diff.lower","diff.upper")
+                                                predicted.outcome.CI = c("diff.lower","diff.upper"),
+                                                tau.method = "REML"
 )
 point.wise.absolute_diff_PS.HT =  point.wise.absolute_diff_PS.HT%>%
   mutate(BMI =  as.numeric(BMI))
@@ -458,7 +458,8 @@ point.wise.absolute_diff_SS.HT  =  pointwise.ma(data = absolute_diff_SS.HT ,
                                                 combining.variables = c("BMI"),
                                                 predicted.outcome = "fit.diff",
                                                 predicted.outcome.se = NULL,
-                                                predicted.outcome.CI = c("diff.lower","diff.upper")
+                                                predicted.outcome.CI = c("diff.lower","diff.upper"),
+                                                tau.method = "REML"
 )
 
 point.wise.absolute_diff_SS.HT =  point.wise.absolute_diff_SS.HT%>%
@@ -487,7 +488,7 @@ point.wise.DF.RCS.HT.diff.plot = point.wise.absolute_diff_RCS.HT%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "a")+ ylim(c(-0.8,0.5))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "a")+ ylim(c(-1,1))
 
 point.wise.DF.BS.HT.diff.plot=point.wise.absolute_diff_BS.HT%>%
   ggplot(aes(x = BMI,RE.meta)) + geom_line(size=2)+
@@ -508,7 +509,7 @@ point.wise.DF.BS.HT.diff.plot=point.wise.absolute_diff_BS.HT%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "b")+ ylim(c(-0.8,0.5))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "b")+ ylim(c(-1,1))
 
 
 
@@ -532,7 +533,7 @@ point.wise.DF.PS.HT.diff.plot=point.wise.absolute_diff_PS.HT%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10,label = "c")+ ylim(c(-0.8,0.5))
+  annotate("text",x = 19.25,y=0.75, size = 10,label = "c")+ ylim(c(-1,1))
 
 
 point.wise.DF.SS.HT.diff.plot=point.wise.absolute_diff_SS.HT%>%
@@ -555,6 +556,6 @@ point.wise.DF.SS.HT.diff.plot=point.wise.absolute_diff_SS.HT%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19.25,y=0.2, size = 10, label = "d")+ ylim(c(-0.8,0.5))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "d")+ ylim(c(-1,1))
 
 

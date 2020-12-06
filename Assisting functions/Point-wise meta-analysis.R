@@ -1,5 +1,7 @@
 #### code for running the point-wise meta-analysis
 
+
+
 pointwise.ma = function(data, clustering.variable = "Study", 
                         combining.variables=  c("BMI","Treatment"), 
                         predicted.outcome =  "fit", 
@@ -77,8 +79,8 @@ pointwise.ma = function(data, clustering.variable = "Study",
           t()%>%na.omit()%>%
           as.vector()
         
-        meta1= metagen(TE= TE, lower = lower, upper = upper, method.tau = tau.method,hakn = T, adhoc.hakn = "ci" )
-        meta2= metagen(TE= TE, lower = lower, upper = upper, method.tau = tau.method,hakn = F )
+        meta1= metagen(TE= TE, lower = lower, upper = upper, method.tau = tau.method,hakn = T, adhoc.hakn = "ci", control=list(maxiter=1000)  )
+        meta2= metagen(TE= TE, lower = lower, upper = upper, method.tau = tau.method,hakn = F, control = list(maxiter=1000) )
         
       }
     

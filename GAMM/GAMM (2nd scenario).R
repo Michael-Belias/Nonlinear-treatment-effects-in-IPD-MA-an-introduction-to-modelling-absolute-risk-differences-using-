@@ -1,7 +1,14 @@
 ####################
 ##### Second scenario
 ####################
-#rm(list=ls()[! ls() %in% c("df1","df2","df3","expit")]) ### To clear all environment besides the data-set
+
+
+source("Code for Figures, Tables, Analysis and data-simulation/Simulated datasets/Second scenario data-set.R")
+#rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")])
+
+
+
+
 Knots= list (BMI = (quantile(df2$BMI , probs = c(0.05,0.275,0.5,0.725,0.95))))
 
 
@@ -253,7 +260,7 @@ GAMM.DF.RCS.DR.diff.plot = absolute_diff_RCS.DR%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19,y=0.2, size = 10, label = "a")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "a")+ ylim(c(-1,1))
 
 
 
@@ -277,7 +284,7 @@ GAMM.DF.BS.DR.diff.plot=absolute_diff_BS.DR%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19,y=0.2, size = 10, label = "b")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "b")+ ylim(c(-1,1))
 
 
 GAMM.DF.PS.DR.diff.plot=absolute_diff_PS.DR%>%
@@ -300,7 +307,7 @@ GAMM.DF.PS.DR.diff.plot=absolute_diff_PS.DR%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19,y=0.2, size = 10,label = "c")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10,label = "c")+ ylim(c(-1,1))
 
 
 GAMM.DF.SS.DR.diff.plot=absolute_diff_SS.DR%>%
@@ -323,4 +330,4 @@ GAMM.DF.SS.DR.diff.plot=absolute_diff_SS.DR%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19,y=0.2, size = 10, label = "d")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "d")+ ylim(c(-1,1))

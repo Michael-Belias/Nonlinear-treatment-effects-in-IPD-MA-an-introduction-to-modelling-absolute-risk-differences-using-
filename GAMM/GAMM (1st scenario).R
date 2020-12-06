@@ -298,7 +298,7 @@ GAMM.DF.RCS.HT.diff.plot = absolute_diff_RCS.HT%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19,y=0.2, size = 10, label = "a")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "a")+ ylim(c(-1,1))
 
 
 
@@ -322,7 +322,7 @@ GAMM.DF.BS.HT.diff.plot=absolute_diff_BS.HT%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19,y=0.2, size = 10, label = "b")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "b")+ ylim(c(-1,1))
 
 
 GAMM.DF.PS.HT.diff.plot=absolute_diff_PS.HT%>%
@@ -345,7 +345,7 @@ GAMM.DF.PS.HT.diff.plot=absolute_diff_PS.HT%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19,y=0.2, size = 10,label = "c")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10,label = "c")+ ylim(c(-1,1))
 
 
 
@@ -371,5 +371,5 @@ GAMM.DF.SS.HT.diff.plot=absolute_diff_SS.HT%>%
         legend.text=element_text(size=42, hjust = 0), 
         legend.title =element_text(size=28, hjust = 0.5),
         legend.position = "none") +  
-  annotate("text",x = 19,y=0.2, size = 10, label = "d")+ ylim(c(-0.8,0.3))
+  annotate("text",x = 19.25,y=0.75, size = 10, label = "d")+ ylim(c(-1,1))
 
