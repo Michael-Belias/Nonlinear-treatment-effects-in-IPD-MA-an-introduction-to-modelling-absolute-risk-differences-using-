@@ -409,7 +409,7 @@ linear.Models =  miniIPD.linear%>%
   droplevels(miniIPD.linear$study)%>% 
   arrange(desc(study))%>%
   group_by(study) %>%
-  do(model = glm(formula = poutcome ~  treat + bilat_0 + age + treat*bilat_0 + age*treat + age*bilat_0 + age*bilat_0, 
+  do(model = glm(formula = poutcome ~  treat + bilat_0 + age + treat*bilat_0 + age*treat + age*bilat_0, 
                  family = binomial("logit"), data = .))
 
 

@@ -8,26 +8,18 @@ expit<-function(rs) {1/(1+exp(-rs))}
 
 
 ## Define knots positions for restricted cubic splines
-Knots.RCS =   list(BMI=quantile(single.df$BMI, probs = c(0.05,0.275,0.5,0.725,0.95))) 
+Knots.RCS =   quantile(single.df$BMI, probs = c(0.05,0.275,0.5,0.725,0.95))
+Knots.NS =   c(23.875, 29.250 ,34.625)
+
 
 
 ## Save the formulas for the splines methods
-formula.RCS =Y~ BMI +Treatment +  s(BMI,      ### Continuous variable
-                                    bs ="cr", ###  Specification of Restricted splines 
-                                    fx=T,     ###  Logical value (True/False) whether the spline will be fixed or penalised
-                                    by = Treatment, ### using the by argument we introduce interactions 
-                                    k = 5)    ### k is the complexity of the model (in RCS the complexity is equal to the number of the knots)
+formula.RCS =Y~ Treatment+ rcs(BMI, Knots.RCS)*Treatment
 
-formula.BS =Y~ BMI + Treatment+   s(BMI,      ### Continuous variable
-                                    bs = "bs",###  Specification of B-splines  
-                                    fx = T,   ###  Logical value (True/False) whether the spline will be fixed or penalised
-                                    by = Treatment,  ### using the by argument we introduce interactions
-                                    k = 5,    ### k is the complexity of the model (in B-splines the complexity is equal to the number of internal knots + degree of B-spline + 1)
-                                    m=c(2,0)  ### Degree of B-spline  -  degree of derivative based penalisation (here since we don't have penalisation we have 0)
-                                    ) 
+formula.NS =Y~ Treatment+  ns(BMI, knots = Knots.NS)*Treatment
 
 
-formula.PS =Y ~ BMI + Treatment + s(BMI,      ### Continuous variable
+formula.PS =Y ~ BMI + Treatment+ BMI*Treatment + s(BMI,      ### Continuous variable
                                     bs="ps",  ###  Specification of P-splines   
                                     k=19,     ### k is the complexity of the model
                                     fx=F,     ###  Logical value (True/False) whether the spline will be fixed or penalised
@@ -38,25 +30,24 @@ formula.PS =Y ~ BMI + Treatment + s(BMI,      ### Continuous variable
 
 
 
-formula.SS =  Y ~ BMI + Treatment+ s(BMI,    ### Continuous variable
+formula.SS =  Y ~ BMI + Treatment+ BMI*Treatment+ s(BMI,    ### Continuous variable
                                      bs="tp",###  Specification of Smoothing splines (equivalent to smoothing splines in one dimensional X) 
                                      fx=F,   ###  Logical value (True/False) whether the spline will be fixed or penalised
                                      by = Treatment,### using the by argument we introduce interactions
                                      sp = -1    ### smoothing parameters.Negative value signals auto-initialization
                                      )
 
-
 ## Fit models
 fit.RCS = gam( formula =formula.RCS, ### The formula 
-               knots = Knots.RCS,    ### The positions of knots
                family = binomial("logit"), ### the link function
-               data = single.df,     ### data-set
-               nthreads = 8,         ### Multi-threading option
-               method = "GCV.Cp"     ### 	 The smoothing parameter estimation method. "GCV.Cp" uses Generalised Cross-validation based on Cp Mallows
-               )
+               data = single.df)
 
-fit.BS = gam( formula =formula.BS,  
+
+
+
+fit.NS = gam( formula =formula.NS,  
               family = binomial("logit"),
+              fixed= T,
               data = single.df, 
               nthreads = 8, 
               method = "GCV.Cp")
@@ -76,19 +67,19 @@ fit.SS = gam(formula = formula.SS,
 
 ## save predicted outcomes
 preds.RCS = as.data.frame(predict.gam(fit.RCS, se.fit = T))
-preds.BS = as.data.frame(predict.gam(fit.BS, se.fit = T))
+preds.NS = as.data.frame(predict.gam(fit.NS, se.fit = T))
 preds.PS = as.data.frame(predict.gam(fit.PS, se.fit = T))
 preds.SS = as.data.frame(predict.gam(fit.SS, se.fit = T))
 
 ## Calculate lower confidence interval of the regression lines
 preds.RCS$Lower = preds.RCS$fit - 1.96*preds.RCS$se.fit
-preds.BS$Lower  = preds.BS$fit  - 1.96*preds.BS$se.fit
+preds.NS$Lower  = preds.NS$fit  - 1.96*preds.NS$se.fit
 preds.PS$Lower  = preds.PS$fit  - 1.96*preds.PS$se.fit
 preds.SS$Lower  = preds.SS$fit  - 1.96*preds.SS$se.fit
 
 ## Calculate upper confidence interval of the regression lines
 preds.RCS$Upper = preds.RCS$fit + 1.96*preds.RCS$se.fit
-preds.BS$Upper  = preds.BS$fit  + 1.96*preds.BS$se.fit
+preds.NS$Upper  = preds.NS$fit  + 1.96*preds.NS$se.fit
 preds.PS$Upper  = preds.PS$fit  + 1.96*preds.PS$se.fit
 preds.SS$Upper  = preds.SS$fit  + 1.96*preds.SS$se.fit
 
@@ -98,7 +89,7 @@ preds.RCS = preds.RCS%>%
   select(-contains("se.fit"))%>%
   apply(. , 2, expit)
 
-preds.BS = preds.BS%>%
+preds.NS = preds.NS%>%
   select(-contains("se.fit"))%>%
   apply(. , 2, expit)
 
@@ -113,7 +104,7 @@ preds.SS = preds.SS%>%
 
 ### Combine with the single study data-set
 preds.RCS =cbind(single.df, preds.RCS)
-preds.BS  =cbind(single.df, preds.BS)
+preds.NS  =cbind(single.df, preds.NS)
 preds.PS  =cbind(single.df, preds.PS)
 preds.SS  =cbind(single.df, preds.SS)
 
@@ -125,7 +116,7 @@ gRCS= ggplot(preds.RCS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
   geom_line(mapping = aes(x = BMI, fit,  color= Treatment))+ 
   ylab("")+ xlab("") + scale_color_jama()+ 
   theme_bw()+ geom_ribbon(mapping = aes(ymin=Lower, ymax=Upper),alpha=0.15)+
-  geom_vline(xintercept = fit.RCS$smooth[[1]]$xp, linetype =2)+
+  geom_vline(xintercept = quantile(single.df$BMI, probs = c(0.05,0.275,0.5,0.725,0.95)), linetype =2)+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
         axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
@@ -144,15 +135,13 @@ gRCS= ggplot(preds.RCS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
   annotate("text",x = 19,y=0.75, size = 10, label = "a") +ylim(c(0,1))
 
 
-### Calculate the number of knots
-n= length(fit.BS$smooth[[1]]$knots)
 ### Draw the B-spline plot
-gBS= ggplot(preds.BS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
+gNS= ggplot(preds.NS,aes(x = BMI, y = `Mortality risk`, color= Treatment))+
   geom_line(linetype= 5,size=2) + 
   geom_line(mapping = aes(x = BMI, fit,  color= Treatment))+
   ylab("")+ xlab("") + scale_color_jama()+ 
   theme_bw()+ geom_ribbon(mapping = aes(ymin=Lower, ymax=Upper),alpha=0.15)+
-  geom_vline(xintercept = fit.BS$smooth[[1]]$knots[-c(1:2,(n-1):n)], linetype =2)+
+  geom_vline(xintercept = Knots.NS, linetype =2)+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
         axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
@@ -250,7 +239,7 @@ legend = gtable_filter(ggplotGrob(p1), "guide-box")
 
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 6.png",width = 1240, height = 1680) 
 ##### Plot all the plots in a grid
-grid.arrange(arrangeGrob(gRCS,gBS,gPS,gSS,
+grid.arrange(arrangeGrob(gRCS,gNS,gPS,gSS,
                          bottom= textGrob(label = expression(BMI (kg/m^2)), hjust = 0,gp = gpar(fontsize=32)), 
                          left = textGrob(label = "Mortality risk", rot = 90, vjust = 1,gp = gpar(fontsize=32))), 
              legend, heights= c(10,1))
@@ -269,7 +258,7 @@ absolute_diff_RCS = risk.diff.creator(dataframe = preds.RCS,treatment = "Treatme
                                       predicted.outcome = "fit", predicted.CI = c("Lower","Upper"))
 
 
-absolute_diff_BS = risk.diff.creator(dataframe = preds.BS,treatment = "Treatment",outcome = "Mortality risk", 
+absolute_diff_NS = risk.diff.creator(dataframe = preds.NS,treatment = "Treatment",outcome = "Mortality risk", 
                                      matching.variables = c("BMI","BMI.standardised"),
                                      predicted.outcome = "fit", predicted.CI = c("Lower","Upper"))
 
@@ -287,8 +276,8 @@ absolute_diff_SS = risk.diff.creator(dataframe = preds.SS,treatment = "Treatment
 
 absolute_diff_RCS$`Mortality risk.diff` = 
   absolute_diff_RCS$`Mortality risk.y` - absolute_diff_RCS$`Mortality risk.x`
-absolute_diff_BS$`Mortality risk.diff`  = 
-  absolute_diff_BS$`Mortality risk.y` - absolute_diff_BS$`Mortality risk.x`
+absolute_diff_NS$`Mortality risk.diff`  = 
+  absolute_diff_NS$`Mortality risk.y` - absolute_diff_NS$`Mortality risk.x`
 absolute_diff_PS$`Mortality risk.diff`  =
   absolute_diff_PS$`Mortality risk.y` - absolute_diff_PS$`Mortality risk.x`
 absolute_diff_SS$`Mortality risk.diff`  =
@@ -303,7 +292,7 @@ gRCS_absolute_diff= ggplot(absolute_diff_RCS,aes(x = BMI, fit.diff)) +geom_line(
   geom_hline(yintercept = 0, linetype=4)+
   ylab("")+ xlab("") + scale_color_jama()+ 
   theme_bw()+ geom_ribbon(mapping = aes(ymin=diff.lower, ymax=diff.upper),alpha=0.15)+
-  geom_vline(xintercept = fit.RCS$smooth[[1]]$xp, linetype =2)+
+  geom_vline(xintercept = Knots.RCS, linetype =2)+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
         axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
@@ -321,14 +310,14 @@ gRCS_absolute_diff= ggplot(absolute_diff_RCS,aes(x = BMI, fit.diff)) +geom_line(
         legend.position = "none") + 
   annotate("text",x = 19,y=0.75, size = 10, label = "a") + ylim(c(-1,1))
 
-n= length(fit.BS$smooth[[1]]$knots)
 
-gBS_absolute_diff= ggplot(absolute_diff_BS,aes(x = BMI, fit.diff))+geom_line()+ 
+
+gNS_absolute_diff= ggplot(absolute_diff_NS,aes(x = BMI, fit.diff))+geom_line()+ 
   geom_line(aes(x = BMI, `Mortality risk.diff`), linetype= 2, size=2)+  
   geom_line()+ geom_hline(yintercept = 0, linetype=4)+
   ylab("")+ xlab("") + scale_color_jama()+ 
   theme_bw()+ geom_ribbon(mapping = aes(ymin=diff.lower, ymax=diff.upper),alpha=0.15)+
-  geom_vline(xintercept = fit.BS$smooth[[1]]$knots[-c(1:3,(n-2):n)], linetype =2)+
+  geom_vline(xintercept = Knots.NS, linetype =2)+
   theme(plot.title    = element_text(hjust = 0.5,size = 26,face = "bold.italic"),
         plot.subtitle = element_text(hjust = 0.5,size = 18,face = "bold.italic"),
         axis.text.x.bottom  = element_text(angle = 0, vjust = 0.5, size=32),
@@ -401,7 +390,7 @@ gSS_absolute_diff= ggplot(absolute_diff_SS,aes(x = BMI, fit.diff)) +geom_line()+
 
 png("Code for Figures, Tables, Analysis and data-simulation/Figures and Tables/Figure 7.png",width = 1240, height = 1680) 
 ##### Plot all the plots in a grid
-grid.arrange(gRCS_absolute_diff,gBS_absolute_diff,gPS_absolute_diff,gSS_absolute_diff,
+grid.arrange(gRCS_absolute_diff,gNS_absolute_diff,gPS_absolute_diff,gSS_absolute_diff,
             bottom= textGrob(label = expression(BMI (kg/m^2)), hjust = 0.35,gp = gpar(fontsize=32)), 
             left = textGrob(label = "Treatment effect plot (absolute risk differences)", rot = 90, vjust = 1,gp = gpar(fontsize=32)))
 

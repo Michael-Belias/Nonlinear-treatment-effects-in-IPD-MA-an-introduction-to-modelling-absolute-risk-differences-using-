@@ -13,19 +13,18 @@ source("Code for Figures, Tables, Analysis and data-simulation/Simulated dataset
 RCS.DR = df2%>%
   arrange(desc(Study))%>%
   group_by(Study) %>% 
-  do(model = gam(formula = Y~ BMI + Treatment + BMI*Treatment+  s(BMI,bs ="cr",fx=T,by = Treatment,k = 4),
-                 knots = list(BMI = quantile(.$BMI, probs = c(0.05,0.35,0.65,0.95))),
-                 family = binomial("logit"), data = ., 
-                 method="REML" ))
+  do(model = glm(formula = Y~ BMI + Treatment + BMI*Treatment+  
+                 rcs(BMI, quantile(.$BMI, probs = c(0.1,0.5,0.9)))*Treatment, ### For each study we fit RCS 
+                 family = binomial("logit"), data = .))
 
 ## Fit a B-spline model per study
 BS.DR = df2%>%
   arrange(desc(Study))%>%
   group_by(Study) %>%
-  do(model = gam(formula = Y~ BMI + Treatment+BMI * Treatment+  s(BMI,bs ="bs",fx=T,by = Treatment,m=c(2,0),k = 4),
+  do(model = glm(formula = Y~ BMI + Treatment + BMI*Treatment + 
+                   bs(BMI, df = 3)*Treatment,  ### For each study we fit B-splines 
                  family = binomial("logit"), 
-                 data = .,
-                 method="REML" ))
+                 data = .))
 
 ## Fit a P-spline model per study
 PS.DR= df2%>%
@@ -64,10 +63,25 @@ predictions.RCS.DR= new.dat%>%
   do(augment(.$model[[1]], newdata = .$data[[1]],se_fit =T)) 
 
 
+incr=0
+for ( i in unique(df2$Study)){
+  
+
+  predictions.RCS.DR[incr+ which(predictions.RCS.DR[predictions.RCS.DR$Study == i,]$BMI < min(df2[df2$Study == i,]$BMI) | 
+                                 predictions.RCS.DR[predictions.RCS.DR$Study == i,]$BMI > max(df2[df2$Study == i,]$BMI) ),]$.se.fit = 10
+
+  
+  incr = incr + 100
+  
+  
+}
+
+
+
 ### Don't run. 
 
 predictions.RCS.DR%>%
-  ggplot(., aes(BMI,expit(.fitted), color= Treatment,))+ geom_line()+ facet_wrap(.~Study) + 
+  ggplot(., aes(BMI,expit(.fitted), color= Treatment,))+ geom_line()+ facet_wrap(.~Study)+newtheme + ggtitle("Per study predicted outcomes (Harrel's approach)")+
   geom_ribbon(mapping = aes(ymin= expit(.fitted - 1.96*.se.fit ),ymax = expit(.fitted + 1.96*.se.fit), fill= Treatment), alpha= 0.1)
 
 

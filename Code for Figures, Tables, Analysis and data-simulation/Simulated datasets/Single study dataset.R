@@ -2,7 +2,7 @@
 
 
 set.seed(831)
-single.df =  data.frame(BMI= rep(seq(18.5,to = 40, length.out = 100),each= 5),
+single.df =  data.frame(BMI= rep(seq(18.5,to = 40, length.out = 250),each= 2),
                         Treat =  rep(c(0,1),250))
 
 

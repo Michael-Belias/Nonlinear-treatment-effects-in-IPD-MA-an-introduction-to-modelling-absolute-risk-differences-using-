@@ -10,9 +10,9 @@ rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")])
 
 expit<-function(rs) {1/(1+exp(-rs))}
 
+source("Assisting functions/B-splines knots.R")
 
-
-## ----Pointwise neta-analysis --------------------------------------------------------------------------------------
+## ----Pointwise meta-analysis --------------------------------------------------------------------------------------
 
 ### %>% is a pipeline function 
 ### each line uses the result of the previous pipe 
@@ -22,27 +22,28 @@ expit<-function(rs) {1/(1+exp(-rs))}
 RCS.HT = df1%>%                                ### We call the data-set of the first scenario
   arrange(desc(Study))%>%                      ### Order the date based on study                
   group_by(Study) %>%                          ### Group them based on study   
-  do(model = gam(Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="cr",fx=T,by = Treatment,k = 4),     ### For each study we fit RCS 
-                 knots = list(BMI = quantile(.$BMI, probs = c(0.05,0.35,0.65,0.95))), 
+  do(model = glm(Y~ BMI + Treatment + BMI*Treatment + 
+                   rcs(BMI, quantile(.$BMI, probs = c(0.05,0.35,0.65,0.95)))*Treatment, ### For each study we fit RCS 
                  family = binomial("logit"),   ### Note that in pointwise meta-analysis one can use different modelling techniques per study
-                 data = .,                     ### different models per study 
-                 method="REML" ))              
+                 data = .                     ### different models per study 
+                 ))              
 
 ## Similarly we
 ## Fit a B-spline model per study
 BS.HT = df1%>%                                 ### We call the data-set of the first scenario
   arrange(desc(Study))%>%                      ### Order the date based on study 
   group_by(Study) %>%                          ### Group them based on study   
-  do(model = gam(Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="bs",fx=T,by = Treatment,m=c(2,0),k = 4), ### For each study we fit B-splines 
+  do(model = glm(Y~ BMI + Treatment + BMI*Treatment +  
+                   bs(BMI, df = 3)*Treatment,  ### For each study we fit B-splines 
                  family = binomial("logit"), 
-                 data = ., 
-                 method="REML" ))
+                 data = .))
 
 ## Fit a P-spline model per study
 PS.HT = df1%>%                                 ### We call the data-set of the first scenario
   arrange(desc(Study))%>%                      ### Order the date based on study 
   group_by(Study) %>%                          ### Group them based on study   
-  do(model = gam(Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="ps",fx=F,by = Treatment,m=c(1,2),k = 17), ### For each study we fit P-spline 
+  do(model = gam(Y~ BMI + Treatment + BMI*Treatment + 
+                   s(BMI,bs ="ps",fx=F,by = Treatment,m=c(1,2),k = 17), ### For each study we fit P-spline 
                  family = binomial("logit"), 
                  data = ., 
                  method="REML" ))
@@ -51,7 +52,8 @@ PS.HT = df1%>%                                 ### We call the data-set of the f
 SS.HT = df1%>%
   arrange(desc(Study))%>%
   group_by(Study) %>%
-  do(model = gam(formula = Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="tp",fx=F,by = Treatment), 
+  do(model = gam(formula = Y~ BMI + Treatment + BMI*Treatment + 
+                   s(BMI,bs ="tp",fx=F,by = Treatment), 
                  family = binomial("logit"), 
                  data = ., 
                  method="REML" ))
@@ -60,8 +62,8 @@ SS.HT = df1%>%
 ## Create a data-set that will be used for estimating the predicted outcome
 
 new.dat= data.frame(BMI= rep(seq(18.5,40,length.out = 50),each = 10),
-                    Treatment = rep(unique(df2$Treatment),250), 
-                    Study =  rep(rep(unique(df2$Study),each =2),50))
+                    Treatment = rep(unique(df1$Treatment),250), 
+                    Study =  rep(rep(unique(df1$Study),each =2),50))
 
 
 ## Calculate the predicted outcome per study (given the models fitted above)
