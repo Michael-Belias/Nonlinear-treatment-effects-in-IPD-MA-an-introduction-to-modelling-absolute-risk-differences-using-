@@ -28,10 +28,10 @@ df2$weight =  1
 ######This is a test data-augmentation procedure
 
 
-#augmentation.df2 =  as.data.frame(with(df2, expand.grid(unique(Study),unique(BMI), unique(Treatment), unique(Y)))); 
-#colnames(augmentation.df2) = c("Study","BMI", "Treatment", "Y") ;  augmentation.df2$weight = 0.000000000001
+augmentation.df2 =  as.data.frame(with(df2, expand.grid(unique(Study),unique(BMI), unique(Treatment), unique(Y)))); 
+colnames(augmentation.df2) = c("Study","BMI", "Treatment", "Y") ;  augmentation.df2$weight = 0.000001
 
-#df2 =  rbind(augmentation.df2, df2[,colnames(augmentation.df2)])
+df2 =  rbind(augmentation.df2, df2[ ,colnames(df2) %in% colnames(augmentation.df2)])
 
 
 
@@ -68,7 +68,7 @@ rm(lower,upper, rep.lower,rep.upper,n.lower, n.upper)
 
 ### Get the knots from the overall model to use the same per study
 Knots.ns.df2 =  c(25.66667, 32.83333)  ### This leads to 8 df
-Knots.rcs.df2=  quantile(df2[df2$weight==1,]$BMI, probs = c(0.05,0.35,0.65,0.95)) ### This leads to 8 df
+Knots.rcs.df2=  quantile(df2[df2$weight==1,]$BMI, probs = c(0.1,0.5,0.9)) ### This leads to 8 df
 Knots.bs.df2 =  c(29.25) ### This leads to 10 df, but I can't place less
 
 
@@ -84,9 +84,9 @@ Knots.bs.df2 =  c(29.25) ### This leads to 10 df, but I can't place less
 RCS.DR = df2%>%
   arrange(desc(Study))%>%
   group_by(Study) %>% 
-  do(model = glm(formula = Y~ Treatment + 
-                   rcs(BMI,Knots.rcs.df2 )*Treatment, ### For each study we fit RCS 
-                 family = binomial("logit"), weights = weight,
+  do(model = glm(formula = Y~ Treatment + rcs(BMI,knots= Knots.rcs.df2 )*Treatment, ### For each study we fit RCS 
+                 family = binomial("logit"), 
+                 weights = weight,
                  data = .))
 
 ## Fit a NS model per study
@@ -124,7 +124,7 @@ coefficients.RCS.DR= t(sapply(RCS.DR$model,FUN = coefficients))
 Vcov.RCS.DR = t(sapply(RCS.DR$model,function(x)  vcov(x)[lower.tri(vcov(x), diag = T)]))
 
 ### RCS mv-meta
-mvmeta.RCS.DR = mvmeta(coefficients.RCS.DR, Vcov.RCS.DR)    ### Error in chol.default(X[[i]], ...) : the leading minor of order 20 is not positive definite
+mvmeta.RCS.DR = mvmeta(coefficients.RCS.DR, Vcov.RCS.DR, control= list(maxiter=1000))    ### Error in chol.default(X[[i]], ...) : the leading minor of order 20 is not positive definite
 
 
 ### NS coefficients 
@@ -162,8 +162,7 @@ new.dat= data.frame(BMI= rep(seq(18.5,40,length.out = 50),each = 2),
 
 
 ### RCS
-model.matrix.RCS.DR = model.matrix(glm(formula = Y~ Treatment + 
-                                                       rcs(BMI,Knots.rcs.df2 )*Treatment, 
+model.matrix.RCS.DR = model.matrix(glm(formula = formula.RCS, 
                                                      family = binomial("logit"), 
                                                      data = new.dat))
 
@@ -275,8 +274,9 @@ mvmeta.plot.RCS.DR = ggplot(predicted.curves.RCS.DR, aes(BMI,expit(fit), color= 
 
 
 ### NS
-mvmeta.plot.NS.DR =ggplot(predicted.curves.NS.DR, aes(BMI,expit(fit), color= Treatment)) + newtheme+
-  geom_line()+ geom_ribbon(aes(ymin= expit(fit.lower), ymax= expit(fit.upper)), alpha= 0.1) + ggtitle("NS multivariate meta-analysis plot")
+mvmeta.plot.NS.DR =ggplot(predicted.curves.NS.DR, aes(BMI,expit(fit), color= Treatment)) + newtheme+ylim(c(0,1))+
+  geom_line()+ geom_ribbon(aes(ymin= expit(fit.lower), ymax= expit(fit.upper)), alpha= 0.1) + 
+  ggtitle("NS multivariate meta-analysis plot")
 
 mvmeta.plot.NS.DR
 

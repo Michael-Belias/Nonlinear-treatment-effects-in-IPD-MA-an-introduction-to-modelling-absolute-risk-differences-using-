@@ -21,7 +21,7 @@ formula.NS =Y~ Treatment+  ns(BMI, knots = Knots.NS)*Treatment
 
 formula.PS =Y ~ BMI + Treatment+ BMI*Treatment + s(BMI,      ### Continuous variable
                                     bs="ps",  ###  Specification of P-splines   
-                                    k=19,     ### k is the complexity of the model
+                                    k=17,     ### k is the complexity of the model
                                     fx=F,     ###  Logical value (True/False) whether the spline will be fixed or penalised
                                     by = Treatment,### using the by argument we introduce interactions
                                     m=c(2,3), ### Degree of B-spline  -  degree of derivative based penalisation

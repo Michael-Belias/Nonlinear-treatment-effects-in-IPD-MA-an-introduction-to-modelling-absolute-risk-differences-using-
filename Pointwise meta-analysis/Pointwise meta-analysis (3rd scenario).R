@@ -12,19 +12,18 @@ source("Code for Figures, Tables, Analysis and data-simulation/Simulated dataset
 RCS.Comb = df3%>%
   arrange(desc(Study))%>%
   group_by(Study) %>%
-  do(model = gam(formula = Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="cr",fx=T,by = Treatment,k = 4),
-                 knots = list(BMI = quantile(.$BMI, probs = c(0.05,0.35,0.65,0.95))), 
-                 family = binomial("logit"), data = ., 
-                 method="REML" ))
+  do(model = glm(formula = Y~ Treatment +  
+                   rcs(BMI, quantile(.$BMI, probs = c(0.1,0.5,0.9)))*Treatment, ### For each study we fit RCS 
+                 family = binomial("logit"), data = .))
 
 ## Fit a B-splines model per study
-BS.Comb = df3%>%
+NS.Comb = df3%>%
   arrange(desc(Study))%>%
   group_by(Study) %>%
-  do(model = gam(formula = Y~ BMI + Treatment + BMI*Treatment + s(BMI,bs ="bs",fx=T,by = Treatment,m=c(2,0),k = 4),
+  do(model = gam(formula = Y~ Treatment +   
+                   ns(BMI, df = 2)*Treatment,  ### For each study we fit B-splines 
                  family = binomial("logit"), 
-                 data = .,
-                 method="REML" ))
+                 data = .))
 
 ## Fit a P-splines model per study
 PS.Comb= df3%>%
@@ -71,17 +70,17 @@ predictions.RCS.Comb%>%
 
 
 ### B-splines
-predictions.BS.Comb= new.dat%>%
+predictions.NS.Comb= new.dat%>%
   droplevels(new.dat$Study)%>% 
   arrange(desc(Study))%>%
   group_by(Study)%>%
   nest()%>%
-  full_join(BS.Comb, by = "Study") %>% 
+  full_join(NS.Comb, by = "Study") %>% 
   group_by(Study)%>% 
   do(augment(.$model[[1]], newdata = .$data[[1]],se_fit =T)) 
 
 
-predictions.BS.Comb%>%
+predictions.NS.Comb%>%
   ggplot(., aes(BMI,expit(.fitted), color= Treatment,))+ geom_line()+ facet_wrap(.~Study) + 
   geom_ribbon(mapping = aes(ymin= expit(.fitted - 1.96*.se.fit ),ymax = expit(.fitted + 1.96*.se.fit), fill= Treatment), alpha= 0.1)
 
@@ -142,7 +141,7 @@ point.wise.DF.RCS.Comb$RE.meta.upper =  expit(point.wise.DF.RCS.Comb$RE.meta.upp
 point.wise.DF.RCS.Comb$RE.meta.lower =  expit(point.wise.DF.RCS.Comb$RE.meta.lower )
 
 ### B-splines
-point.wise.DF.BS.Comb =  pointwise.ma(predictions.BS.Comb,
+point.wise.DF.NS.Comb =  pointwise.ma(predictions.NS.Comb,
                                       clustering.variable = "Study",
                                       combining.variables = c("BMI","Treatment"), 
                                       predicted.outcome =  ".fitted", 
@@ -152,9 +151,9 @@ point.wise.DF.BS.Comb =  pointwise.ma(predictions.BS.Comb,
 
 ## Backtransform predicted outcomes and their corresponding confidence intervals
 
-point.wise.DF.BS.Comb$RE.meta  =  expit(point.wise.DF.BS.Comb$RE.meta )
-point.wise.DF.BS.Comb$RE.meta.upper  =  expit(point.wise.DF.BS.Comb$RE.meta.upper )
-point.wise.DF.BS.Comb$RE.meta.lower  =  expit(point.wise.DF.BS.Comb$RE.meta.lower)
+point.wise.DF.NS.Comb$RE.meta  =  expit(point.wise.DF.NS.Comb$RE.meta )
+point.wise.DF.NS.Comb$RE.meta.upper  =  expit(point.wise.DF.NS.Comb$RE.meta.upper )
+point.wise.DF.NS.Comb$RE.meta.lower  =  expit(point.wise.DF.NS.Comb$RE.meta.lower)
 
 ### P-splines
 point.wise.DF.PS.Comb =  pointwise.ma(predictions.PS.Comb,
@@ -217,7 +216,7 @@ point.wise.DF.RCS.Comb.plot = point.wise.DF.RCS.Comb%>%
 
 
 ## B-splines
-point.wise.DF.BS.Comb.plot = point.wise.DF.BS.Comb%>%
+point.wise.DF.NS.Comb.plot = point.wise.DF.NS.Comb%>%
   mutate(Treatment = as.factor(Treatment))%>%
   ggplot(aes(x = BMI, y = RE.meta,linetype =Treatment, color = Treatment)) +geom_line(size=2)+
   geom_ribbon(aes(ymin = RE.meta.lower,ymax=RE.meta.upper),alpha=0.2) +
@@ -306,7 +305,7 @@ predictions.RCS.Comb= predictions.RCS.Comb %>%
 
 ### B-splines
 ### Combined IPD-set with different BMI ranges and between study differences in the mortality risks
-predictions.BS.Comb=predictions.BS.Comb%>%
+predictions.NS.Comb=predictions.NS.Comb%>%
   mutate(Lower =  .fitted - 1.96*.se.fit, 
          Upper =  .fitted + 1.96*.se.fit)%>%
   mutate(fit = expit(.fitted), Lower =  expit(Lower), Upper =  expit(Upper))%>%
@@ -347,7 +346,7 @@ absolute_diff_RCS.Comb = risk.diff.creator(dataframe = predictions.RCS.Comb,
 ### B-splines
 
 ### Combined IPD-set with different BMI ranges and between study differences in the mortality risks
-absolute_diff_BS.Comb = risk.diff.creator(dataframe = predictions.BS.Comb,
+absolute_diff_NS.Comb = risk.diff.creator(dataframe = predictions.NS.Comb,
                                           treatment = "Treatment",outcome = NULL, 
                                           matching.variables = c("BMI","Study"),
                                           predicted.outcome = "fit", 
@@ -378,7 +377,7 @@ absolute_diff_SS.Comb = risk.diff.creator(dataframe = predictions.SS.Comb,
 absolute_diff_RCS.Comb=  absolute_diff_RCS.Comb%>%
   select(Study, BMI, fit.diff, diff.lower, diff.upper)
 
-absolute_diff_BS.Comb=  absolute_diff_BS.Comb%>%
+absolute_diff_NS.Comb=  absolute_diff_NS.Comb%>%
   select(Study, BMI, fit.diff, diff.lower, diff.upper)
 
 absolute_diff_PS.Comb=  absolute_diff_PS.Comb%>%
@@ -407,7 +406,7 @@ point.wise.absolute_diff_RCS.Comb =  point.wise.absolute_diff_RCS.Comb%>%
   mutate(BMI =  as.numeric(BMI))
 
 ### Combined IPD-set with different BMI ranges and between study differences in the mortality risks
-point.wise.absolute_diff_BS.Comb  =  pointwise.ma(data = absolute_diff_BS.Comb ,
+point.wise.absolute_diff_NS.Comb  =  pointwise.ma(data = absolute_diff_NS.Comb ,
                                                   clustering.variable = "Study",
                                                   combining.variables = c("BMI"),
                                                   predicted.outcome = "fit.diff",
@@ -416,7 +415,7 @@ point.wise.absolute_diff_BS.Comb  =  pointwise.ma(data = absolute_diff_BS.Comb ,
                                                   tau.method = "EB"
 )
 
-point.wise.absolute_diff_BS.Comb =  point.wise.absolute_diff_BS.Comb%>%
+point.wise.absolute_diff_NS.Comb =  point.wise.absolute_diff_NS.Comb%>%
   mutate(BMI =  as.numeric(BMI))
 
 
@@ -474,7 +473,7 @@ point.wise.DF.RCS.Comb.diff.plot = point.wise.absolute_diff_RCS.Comb%>%
   annotate("text",x = 19.25,y=0.75, size = 10, label = "a")+ ylim(c(-1,1))
 
 
-point.wise.DF.BS.Comb.diff.plot=point.wise.absolute_diff_BS.Comb%>%
+point.wise.DF.NS.Comb.diff.plot=point.wise.absolute_diff_NS.Comb%>%
   ggplot(aes(x = BMI,RE.meta)) + geom_line(size=2)+
   geom_ribbon(mapping = aes(ymin=RE.meta.lower, ymax=RE.meta.upper),alpha=0.25)+geom_hline(yintercept = 0, linetype=2)+ylab("") + 
   xlab("")+theme_minimal()+

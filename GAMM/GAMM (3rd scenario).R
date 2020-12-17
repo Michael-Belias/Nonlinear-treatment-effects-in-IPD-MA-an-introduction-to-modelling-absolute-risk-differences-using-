@@ -5,24 +5,29 @@
 
 source("Code for Figures, Tables, Analysis and data-simulation/Simulated datasets/Third scenario data-set.R")
 #rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")]) ### To clear all environment besides the data-set
-Knots= list (BMI = (quantile(df3$BMI , probs = c(0.05,0.275,0.5,0.725,0.95))))
+Knots.ns.df3= c(25.66667 ,32.83333)
+
+
+Knots.rcs.df3 = list (BMI = (quantile(df3$BMI , probs = c(0.05,0.275,0.5,0.725,0.95))))
 
 
 
-fit.RCS.Combined = gam(Y~  BMI + Treatment + BMI*Treatment + 
-                         s(BMI,by = Treatment,bs="cr",fx = T, k = 5) +  
-                         s(Study,bs = "re") +  
-                         s(Study,BMI,bs = "re")+  
-                         s(Study,Treatment,bs = "re"),knots = Knots,
-                       family = binomial("logit"), data = df3, nthreads = 8, method = "REML")
+fit.RCS.Combined = gam( Y~ BMI + Treatment + BMI*Treatment + 
+                    s(BMI,by = Treatment,bs="cr",fx = T,k = 5) +  
+                    s(Study,bs = "re") +  
+                    s(Study,BMI,bs = "re")+  
+                    s(Study,Treatment,bs = "re"),knots = Knots.rcs.df1,
+                  family = binomial("logit"), data = df3, nthreads = 8, method = "REML")
 
 
-fit.BS.Combined = gam(Y~  BMI + Treatment + BMI*Treatment + 
-                        s(BMI,by = Treatment,fx = T,bs="bs",k=5, m=c(2,0)) +  
-                        s(Study,bs = "re") +  
-                        s(Study,BMI,bs = "re")+  
-                        s(Study,Treatment,bs = "re"),
-                      family = binomial("logit"), data = df3, nthreads = 8, method = "REML")
+fit.NS.Combined= gam(Y ~BMI + Treatment + BMI*Treatment + 
+                  ns(BMI, knots = Knots.ns.df3) +  
+                  s(Study,bs = "re") +  
+                  s(Study,BMI,bs = "re")+  
+                  s(Study,Treatment,bs = "re"),
+                family = binomial("logit"), data = df3, nthreads = 8, method = "REML")
+
+
 
 
 fit.PS.Combined = gam(Y~  BMI + Treatment + BMI*Treatment + 
@@ -46,7 +51,7 @@ new.data = data.frame(cbind(df3[,c("Study","BMI","Treatment")]))
 
 preds.RCS.Combined=  predict.gam(fit.RCS.Combined, se.fit = T,newdata = new.data,newdata.guaranteed = T, exclude = c("s(Study)","s(Study,BMI)","s(Study,Treatment)"))%>%as.data.frame()%>%cbind(new.data)
 
-preds.BS.Combined=  predict.gam(fit.BS.Combined, se.fit = T,newdata = new.data,newdata.guaranteed = T, exclude = c("s(Study)","s(Study,BMI)","s(Study,Treatment)"))%>%as.data.frame()%>%cbind(new.data)
+preds.NS.Combined=  predict.gam(fit.NS.Combined, se.fit = T,newdata = new.data,newdata.guaranteed = T, exclude = c("s(Study)","s(Study,BMI)","s(Study,Treatment)"))%>%as.data.frame()%>%cbind(new.data)
 
 
 preds.PS.Combined=  predict.gam(fit.PS.Combined, se.fit = T,newdata = new.data,newdata.guaranteed = T, exclude = c("s(Study)","s(Study,BMI)","s(Study,Treatment)"))%>%as.data.frame()%>%cbind(new.data)
@@ -57,14 +62,14 @@ preds.SS.Combined=  predict.gam(fit.SS.Combined, se.fit = T,newdata = new.data,n
 
 
 preds.RCS.Combined$lower = preds.RCS.Combined$fit -1.96*preds.RCS.Combined$se.fit
-preds.BS.Combined$lower = preds.BS.Combined$fit   -1.96*preds.BS.Combined$se.fit
+preds.NS.Combined$lower = preds.NS.Combined$fit   -1.96*preds.NS.Combined$se.fit
 preds.PS.Combined$lower = preds.PS.Combined$fit   -1.96*preds.PS.Combined$se.fit
 preds.SS.Combined$lower = preds.SS.Combined$fit   -1.96*preds.SS.Combined$se.fit
 
 
 
 preds.RCS.Combined$upper = preds.RCS.Combined$fit +1.96*preds.RCS.Combined$se.fit
-preds.BS.Combined$upper = preds.BS.Combined$fit   +1.96*preds.BS.Combined$se.fit
+preds.NS.Combined$upper = preds.NS.Combined$fit   +1.96*preds.NS.Combined$se.fit
 preds.PS.Combined$upper = preds.PS.Combined$fit   +1.96*preds.PS.Combined$se.fit
 preds.SS.Combined$upper = preds.SS.Combined$fit   +1.96*preds.SS.Combined$se.fit
 
@@ -91,7 +96,7 @@ g.GAMM.RCS.Combined=ggplot(preds.RCS.Combined, aes(BMI, expit(fit), linetype= Tr
   annotate("text",x = 19,y=0.8, size = 10, label = "a") +ylim(c(0,1))
 
 
-g.GAMM.BS.Combined=ggplot(preds.BS.Combined, aes(BMI, expit(fit), linetype= Treatment,color = Treatment)) + 
+g.GAMM.NS.Combined=ggplot(preds.NS.Combined, aes(BMI, expit(fit), linetype= Treatment,color = Treatment)) + 
   geom_line(size=2) + 
   geom_ribbon(mapping = aes(ymin = expit(lower),ymax=expit(upper)),alpha=0.2)+ 
   ylab("")+xlab("") + scale_color_jama()+  
@@ -161,7 +166,7 @@ g.GAMM.SS.Combined=ggplot(preds.SS.Combined, aes(BMI, expit(fit), linetype= Trea
 
 
 
-g.GAMM.Combined = grid.arrange(g.GAMM.RCS.Combined,g.GAMM.BS.Combined,g.GAMM.PS.Combined,g.GAMM.SS.Combined, ncol=4, right = textGrob(label = "", vjust = -1,gp = gpar(fontsize=32)))
+g.GAMM.Combined = grid.arrange(g.GAMM.RCS.Combined,g.GAMM.NS.Combined,g.GAMM.PS.Combined,g.GAMM.SS.Combined, ncol=4, right = textGrob(label = "", vjust = -1,gp = gpar(fontsize=32)))
 
 
 
@@ -171,7 +176,7 @@ preds.RCS.Combined= preds.RCS.Combined%>%
   mutate(fit = expit(fit), Lower =  expit(Lower), Upper =  expit(Upper))
 
 
-preds.BS.Combined = preds.BS.Combined%>%
+preds.NS.Combined = preds.NS.Combined%>%
   mutate(Lower =  fit - 1.96*se.fit, 
          Upper =  fit + 1.96*se.fit)%>%
   mutate(fit = expit(fit), Lower =  expit(Lower), Upper =  expit(Upper))
@@ -203,7 +208,7 @@ absolute_diff_RCS.Comb = risk.diff.creator(dataframe = preds.RCS.Combined,
 
 
 
-absolute_diff_BS.Comb = risk.diff.creator(dataframe = preds.BS.Combined,
+absolute_diff_NS.Comb = risk.diff.creator(dataframe = preds.NS.Combined,
                                           treatment = "Treatment",outcome = NULL, 
                                           matching.variables = c("BMI"),
                                           predicted.outcome = "fit", 
@@ -225,7 +230,7 @@ absolute_diff_SS.Comb = risk.diff.creator(dataframe = preds.SS.Combined,
 absolute_diff_RCS.Comb=  absolute_diff_RCS.Comb%>%
   select( BMI, fit.diff, diff.lower, diff.upper)
 
-absolute_diff_BS.Comb=  absolute_diff_BS.Comb%>%
+absolute_diff_NS.Comb=  absolute_diff_NS.Comb%>%
   select( BMI, fit.diff, diff.lower, diff.upper)
 
 absolute_diff_PS.Comb=  absolute_diff_PS.Comb%>%
@@ -268,7 +273,7 @@ GAMM.DF.RCS.Comb.diff.plot = absolute_diff_RCS.Comb%>%
 
 
 
-GAMM.DF.BS.Comb.diff.plot=absolute_diff_BS.Comb%>%
+GAMM.DF.NS.Comb.diff.plot=absolute_diff_NS.Comb%>%
   ggplot(aes(x = BMI,fit.diff)) + geom_line(size=2)+
   geom_ribbon(mapping = aes(ymin=diff.lower, ymax=diff.upper),alpha=0.25)+
   geom_hline(yintercept = 0, linetype=2)+ylab("") + 
@@ -340,7 +345,7 @@ GAMM.DF.SS.Comb.diff.plot=absolute_diff_SS.Comb%>%
 
 
 grid.arrange(arrangeGrob(GAMM.DF.RCS.Comb.diff.plot, 
-                         GAMM.DF.BS.Comb.diff.plot, 
+                         GAMM.DF.NS.Comb.diff.plot, 
                          GAMM.DF.PS.Comb.diff.plot, 
                          GAMM.DF.SS.Comb.diff.plot, ncol=4),
              bottom= textGrob(label = expression(paste("BMI ", (Kg/m^2))), 

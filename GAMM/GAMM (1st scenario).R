@@ -4,7 +4,8 @@
 ##### First scenario
 ####################
 rm(list=ls()[! ls() %in% c("df1","df2","df3","expit")]) ### To clear all environment besides the data-set
-Knots= list (BMI = (quantile(df1$BMI , probs = c(0.05,0.275,0.5,0.725,0.95))))
+Knots.rcs.df1= list(BMI = quantile(df1$BMI , probs = c(0.05,0.275,0.5,0.725,0.95)))
+Knots.ns.df1= c(25.66667 ,32.83333)
 
 
 
@@ -16,11 +17,12 @@ fit.RCS.HT = gam(Y ~BMI + Treatment + BMI*Treatment +
                    s(BMI,by = Treatment,fx = T,bs="cr",k = 5) +  
                    s(Study,bs = "re") +  
                    s(Study,BMI,bs = "re")+  
-                   s(Study,Treatment,bs = "re"),knots = Knots,
+                   s(Study,Treatment,bs = "re"),knots = Knots.rcs.df1,
                  family = binomial("logit"),data = df1, nthreads = 8, method = "REML")
 
-fit.BS.HT = gam(Y ~BMI + Treatment + BMI*Treatment + 
-                  s(BMI,by = Treatment,fx = T,bs="bs",k=5, m=c(2,0)) +  
+
+fit.NS.HT = gam(Y ~BMI + Treatment + BMI*Treatment + 
+                  ns(BMI, knots = Knots.ns.df1) +  
                   s(Study,bs = "re") +  
                   s(Study,BMI,bs = "re")+  
                   s(Study,Treatment,bs = "re"),
@@ -49,7 +51,7 @@ new.data = data.frame(cbind(df1[,c("Study","BMI","Treatment")]))
 preds.RCS.HT=  predict.gam(fit.RCS.HT, se.fit = T,newdata = new.data,newdata.guaranteed = T, exclude = c("s(Study)","s(Study,BMI)","s(Study,Treatment)"))%>%
   as.data.frame()%>%cbind(new.data)
 
-preds.BS.HT=  predict.gam(fit.BS.HT, se.fit = T,newdata = new.data,newdata.guaranteed = T, exclude = c("s(Study)","s(Study,BMI)","s(Study,Treatment)"))%>%
+preds.NS.HT=  predict.gam(fit.NS.HT, se.fit = T,newdata = new.data,newdata.guaranteed = T, exclude = c("s(Study)","s(Study,BMI)","s(Study,Treatment)"))%>%
   as.data.frame()%>%cbind(new.data)
 
 preds.PS.HT=  predict.gam(fit.PS.HT, se.fit = T,newdata = new.data,newdata.guaranteed = T, exclude = c("s(Study)","s(Study,BMI)","s(Study,Treatment)"))%>%
@@ -62,12 +64,12 @@ preds.SS.HT=  predict.gam(fit.SS.HT, se.fit = T,newdata = new.data,newdata.guara
 
 
 preds.RCS.HT$lower = preds.RCS.HT$fit -1.96*preds.RCS.HT$se.fit
-preds.BS.HT$lower  = preds.BS.HT$fit  -1.96*preds.BS.HT$se.fit
+preds.NS.HT$lower  = preds.NS.HT$fit  -1.96*preds.NS.HT$se.fit
 preds.PS.HT$lower  = preds.PS.HT$fit  -1.96*preds.PS.HT$se.fit
 preds.SS.HT$lower  = preds.SS.HT$fit -1.96*preds.SS.HT$se.fit
 
 preds.RCS.HT$upper = preds.RCS.HT$fit +1.96*preds.RCS.HT$se.fit
-preds.BS.HT$upper  = preds.BS.HT$fit +1.96*preds.BS.HT$se.fit
+preds.NS.HT$upper  = preds.NS.HT$fit +1.96*preds.NS.HT$se.fit
 preds.PS.HT$upper  = preds.PS.HT$fit +1.96*preds.PS.HT$se.fit
 preds.SS.HT$upper  = preds.SS.HT$fit +1.96*preds.SS.HT$se.fit
 
@@ -100,7 +102,7 @@ g.GAMM.RCS.HT= ggplot(preds.RCS.HT, aes(BMI, expit(fit), linetype= Treatment,col
   annotate("text",x = 19,y=0.8, size = 10, label = "a") +ylim(c(0,1))
 
 
-g.GAMM.BS.HT= ggplot(preds.BS.HT, aes(BMI, expit(fit), linetype= Treatment,color = Treatment)) + 
+g.GAMM.NS.HT= ggplot(preds.NS.HT, aes(BMI, expit(fit), linetype= Treatment,color = Treatment)) + 
   geom_line(size=2) + 
   geom_ribbon(mapping = aes(ymin = expit(lower),ymax=expit(upper)),alpha=0.2)+ 
   ylab("")+xlab("") + scale_color_jama()+  
@@ -195,7 +197,7 @@ p1= ggplot(preds.SS.HT, aes(BMI, expit(fit), linetype= Treatment,color = Treatme
 g.legend =  get_legend(p1)
 
 
-g.GAMM.HT=grid.arrange(g.GAMM.RCS.HT,g.GAMM.BS.HT,g.GAMM.PS.HT,g.GAMM.SS.HT, ncol=4, right = textGrob(label = "", vjust = -1,gp = gpar(fontsize=32)))
+g.GAMM.HT=grid.arrange(g.GAMM.RCS.HT,g.GAMM.NS.HT,g.GAMM.PS.HT,g.GAMM.SS.HT, ncol=4, right = textGrob(label = "", vjust = -1,gp = gpar(fontsize=32)))
 
 
 preds.RCS.HT = preds.RCS.HT %>%
@@ -205,7 +207,7 @@ preds.RCS.HT = preds.RCS.HT %>%
 
 
 
-preds.BS.HT= preds.BS.HT%>%
+preds.NS.HT= preds.NS.HT%>%
   mutate(Lower =  fit - 1.96*se.fit, 
          Upper =  fit + 1.96*se.fit)%>%
   mutate(fit = expit(fit), Lower =  expit(Lower), Upper =  expit(Upper))
@@ -239,7 +241,7 @@ absolute_diff_RCS.HT = risk.diff.creator(dataframe = preds.RCS.HT,
                                          predicted.outcome = "fit", 
                                          predicted.CI = c("Lower","Upper"))
 
-absolute_diff_BS.HT = risk.diff.creator(dataframe = preds.BS.HT,
+absolute_diff_NS.HT = risk.diff.creator(dataframe = preds.NS.HT,
                                         treatment = "Treatment",
                                         outcome = NULL, 
                                         matching.variables = c("BMI"),
@@ -265,7 +267,7 @@ absolute_diff_RCS.HT=  absolute_diff_RCS.HT%>%
   select( BMI, fit.diff, diff.lower, diff.upper)
 
 
-absolute_diff_BS.HT=  absolute_diff_BS.HT%>%
+absolute_diff_NS.HT=  absolute_diff_NS.HT%>%
   select( BMI, fit.diff, diff.lower, diff.upper)
 
 
@@ -302,7 +304,7 @@ GAMM.DF.RCS.HT.diff.plot = absolute_diff_RCS.HT%>%
 
 
 
-GAMM.DF.BS.HT.diff.plot=absolute_diff_BS.HT%>%
+GAMM.DF.NS.HT.diff.plot=absolute_diff_NS.HT%>%
   ggplot(aes(x = BMI,fit.diff)) + geom_line(size=2)+
   geom_ribbon(mapping = aes(ymin=diff.lower, ymax=diff.upper),alpha=0.25)+
   geom_hline(yintercept = 0, linetype=2)+ylab("") + 

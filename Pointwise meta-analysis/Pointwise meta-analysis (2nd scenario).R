@@ -13,16 +13,16 @@ source("Code for Figures, Tables, Analysis and data-simulation/Simulated dataset
 RCS.DR = df2%>%
   arrange(desc(Study))%>%
   group_by(Study) %>% 
-  do(model = glm(formula = Y~ BMI + Treatment + BMI*Treatment+  
+  do(model = glm(formula = Y~ Treatment +  
                  rcs(BMI, quantile(.$BMI, probs = c(0.1,0.5,0.9)))*Treatment, ### For each study we fit RCS 
                  family = binomial("logit"), data = .))
 
 ## Fit a B-spline model per study
-BS.DR = df2%>%
+NS.DR = df2%>%
   arrange(desc(Study))%>%
   group_by(Study) %>%
-  do(model = glm(formula = Y~ BMI + Treatment + BMI*Treatment + 
-                   bs(BMI, df = 3)*Treatment,  ### For each study we fit B-splines 
+  do(model = gam(formula = Y~ Treatment +   
+                   ns(BMI, df = 2)*Treatment,  ### For each study we fit B-splines 
                  family = binomial("logit"), 
                  data = .))
 
@@ -63,21 +63,6 @@ predictions.RCS.DR= new.dat%>%
   do(augment(.$model[[1]], newdata = .$data[[1]],se_fit =T)) 
 
 
-incr=0
-for ( i in unique(df2$Study)){
-  
-
-  predictions.RCS.DR[incr+ which(predictions.RCS.DR[predictions.RCS.DR$Study == i,]$BMI < min(df2[df2$Study == i,]$BMI) | 
-                                 predictions.RCS.DR[predictions.RCS.DR$Study == i,]$BMI > max(df2[df2$Study == i,]$BMI) ),]$.se.fit = 10
-
-  
-  incr = incr + 100
-  
-  
-}
-
-
-
 ### Don't run. 
 
 predictions.RCS.DR%>%
@@ -86,12 +71,12 @@ predictions.RCS.DR%>%
 
 
 ### B-splines
-predictions.BS.DR= new.dat%>%
+predictions.NS.DR= new.dat%>%
   droplevels(new.dat$Study)%>% 
   arrange(desc(Study))%>%
   group_by(Study)%>%
   nest()%>%
-  full_join(BS.DR, by = "Study") %>% 
+  full_join(NS.DR, by = "Study") %>% 
   group_by(Study)%>% 
   do(augment(.$model[[1]], newdata = .$data[[1]],se_fit =T)) 
 
@@ -99,7 +84,7 @@ predictions.BS.DR= new.dat%>%
 
 ### Don't run. 
 
-predictions.BS.DR%>%
+predictions.NS.DR%>%
   ggplot(., aes(BMI,expit(.fitted), color= Treatment,))+ geom_line()+ facet_wrap(.~Study) + 
   geom_ribbon(mapping = aes(ymin= expit(.fitted - 1.96*.se.fit ),ymax = expit(.fitted + 1.96*.se.fit), fill= Treatment), alpha= 0.1)
 
@@ -160,7 +145,7 @@ point.wise.DF.RCS.DR$RE.meta.lower =  expit(point.wise.DF.RCS.DR$RE.meta.lower )
 
 
 ### B-splines
-point.wise.DF.BS.DR =  pointwise.ma(predictions.BS.DR,
+point.wise.DF.NS.DR =  pointwise.ma(predictions.NS.DR,
                                     clustering.variable = "Study",
                                     combining.variables = c("BMI","Treatment"), 
                                     predicted.outcome =  ".fitted", 
@@ -170,9 +155,9 @@ point.wise.DF.BS.DR =  pointwise.ma(predictions.BS.DR,
 
 ## Backtransform predicted outcomes and their corresponding confidence intervals
 
-point.wise.DF.BS.DR$RE.meta  =  expit(point.wise.DF.BS.DR$RE.meta )
-point.wise.DF.BS.DR$RE.meta.upper  =  expit(point.wise.DF.BS.DR$RE.meta.upper )
-point.wise.DF.BS.DR$RE.meta.lower  =  expit(point.wise.DF.BS.DR$RE.meta.lower)
+point.wise.DF.NS.DR$RE.meta  =  expit(point.wise.DF.NS.DR$RE.meta )
+point.wise.DF.NS.DR$RE.meta.upper  =  expit(point.wise.DF.NS.DR$RE.meta.upper )
+point.wise.DF.NS.DR$RE.meta.lower  =  expit(point.wise.DF.NS.DR$RE.meta.lower)
 
 
 
@@ -241,7 +226,7 @@ point.wise.DF.RCS.DR.plot = point.wise.DF.RCS.DR%>%
 
 
 ### B-splines
-point.wise.DF.BS.DR.plot = point.wise.DF.BS.DR%>% 
+point.wise.DF.NS.DR.plot = point.wise.DF.NS.DR%>% 
   mutate(Treatment = as.factor(Treatment))%>%
   ggplot(aes(x = BMI, y = RE.meta,linetype =Treatment, color = Treatment)) +geom_line(size=2)+
   geom_ribbon(aes(ymin = RE.meta.lower,ymax=RE.meta.upper),alpha=0.2)  +
@@ -317,7 +302,7 @@ point.wise.DF.SS.DR.plot = point.wise.DF.SS.DR%>%
         legend.position = "none") +  
   annotate("text",x = 19.25,y=0.9, size = 10, label = "d") +ylim(c(0,1))
 
-grid.arrange(point.wise.DF.RCS.DR.plot,point.wise.DF.BS.DR.plot,point.wise.DF.PS.DR.plot,point.wise.DF.SS.DR.plot)
+grid.arrange(point.wise.DF.RCS.DR.plot,point.wise.DF.NS.DR.plot,point.wise.DF.PS.DR.plot,point.wise.DF.SS.DR.plot)
 
 
 ##-------- Absolute risk differences (Treatment effect plot) -----------------------------------------------------------------------------
@@ -331,7 +316,7 @@ predictions.RCS.DR= predictions.RCS.DR%>%
 
 ### B-splines
 ### Non-heterogeneous IPD-set with different BMI ranges
-predictions.BS.DR=predictions.BS.DR%>%
+predictions.NS.DR=predictions.NS.DR%>%
   mutate(Lower =  .fitted - 1.96*.se.fit, 
          Upper =  .fitted + 1.96*.se.fit)%>%
   mutate(fit = expit(.fitted), Lower =  expit(Lower), Upper =  expit(Upper))%>%
@@ -375,7 +360,7 @@ absolute_diff_RCS.DR = risk.diff.creator(dataframe = predictions.RCS.DR,
 ### B-splines
 
 ### Non-heterogeneous IPD-set with different BMI ranges
-absolute_diff_BS.DR = risk.diff.creator(dataframe = predictions.BS.DR,
+absolute_diff_NS.DR = risk.diff.creator(dataframe = predictions.NS.DR,
                                         treatment = "Treatment",outcome = NULL, 
                                         matching.variables = c("BMI","Study"),
                                         predicted.outcome = "fit", predicted.CI = c("Lower","Upper"))
@@ -408,7 +393,7 @@ absolute_diff_SS.DR = risk.diff.creator(dataframe = predictions.SS.DR,
 absolute_diff_RCS.DR=  absolute_diff_RCS.DR%>%
   select(Study, BMI, fit.diff, diff.lower, diff.upper)
 
-absolute_diff_BS.DR=  absolute_diff_BS.DR%>%
+absolute_diff_NS.DR=  absolute_diff_NS.DR%>%
   select(Study, BMI, fit.diff, diff.lower, diff.upper)
 
 
@@ -451,7 +436,7 @@ point.wise.absolute_diff_RCS.DR%>%
   geom_ribbon(mapping = aes(ymin= expit(.fitted - 1.96*.se.fit ),ymax = expit(.fitted + 1.96*.se.fit), fill= Treatment), alpha= 0.1)
 
 ### Non-heterogeneous IPD-set with different BMI ranges
-point.wise.absolute_diff_BS.DR  =  pointwise.ma(data = absolute_diff_BS.DR ,
+point.wise.absolute_diff_NS.DR  =  pointwise.ma(data = absolute_diff_NS.DR ,
                                                 clustering.variable = "Study",
                                                 combining.variables = c("BMI"),
                                                 predicted.outcome = "fit.diff",
@@ -460,7 +445,7 @@ point.wise.absolute_diff_BS.DR  =  pointwise.ma(data = absolute_diff_BS.DR ,
                                                 tau.method = "REML"
 )
 
-point.wise.absolute_diff_BS.DR =  point.wise.absolute_diff_BS.DR%>%
+point.wise.absolute_diff_NS.DR =  point.wise.absolute_diff_NS.DR%>%
   mutate(BMI =  as.numeric(BMI))
 
 
@@ -519,7 +504,7 @@ point.wise.DF.RCS.DR.diff.plot = point.wise.absolute_diff_RCS.DR%>%
 
 
 
-point.wise.DF.BS.DR.diff.plot=point.wise.absolute_diff_BS.DR%>%
+point.wise.DF.NS.DR.diff.plot=point.wise.absolute_diff_NS.DR%>%
   ggplot(aes(x = BMI,RE.meta)) + geom_line(size=2)+
   geom_ribbon(mapping = aes(ymin=RE.meta.lower, ymax=RE.meta.upper),alpha=0.25)+geom_hline(yintercept = 0, linetype=2)+ylab("") + 
   xlab("")+theme_minimal()+

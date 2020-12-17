@@ -10,13 +10,13 @@ rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")])
 
 expit<-function(rs) {1/(1+exp(-rs))}
 
-source("Assisting functions/B-splines knots.R")
 
 ## ----Pointwise meta-analysis --------------------------------------------------------------------------------------
 
 ### %>% is a pipeline function 
 ### each line uses the result of the previous pipe 
 ### 
+
 
 ## Fit a RCS model per study
 RCS.HT = df1%>%                                ### We call the data-set of the first scenario
@@ -30,11 +30,11 @@ RCS.HT = df1%>%                                ### We call the data-set of the f
 
 ## Similarly we
 ## Fit a B-spline model per study
-BS.HT = df1%>%                                 ### We call the data-set of the first scenario
+NS.HT = df1%>%                                 ### We call the data-set of the first scenario
   arrange(desc(Study))%>%                      ### Order the date based on study 
   group_by(Study) %>%                          ### Group them based on study   
   do(model = glm(Y~ BMI + Treatment + BMI*Treatment +  
-                   bs(BMI, df = 3)*Treatment,  ### For each study we fit B-splines 
+                   ns(BMI, df = 3)*Treatment,  ### For each study we fit B-splines 
                  family = binomial("logit"), 
                  data = .))
 
@@ -78,12 +78,12 @@ predictions.RCS.HT= new.dat%>%                        ## Call the new data
 
 ## Similarly
 ## For B-splines
-predictions.BS.HT= new.dat%>%
+predictions.NS.HT= new.dat%>%
   droplevels(new.dat$Study)%>% 
   arrange(desc(Study))%>%
   group_by(Study)%>%
   nest()%>%
-  full_join(BS.HT, by = "Study") %>% 
+  full_join(NS.HT, by = "Study") %>% 
   group_by(Study)%>% 
   do(augment(.$model[[1]], newdata = .$data[[1]],se_fit =T)) 
 
@@ -130,7 +130,7 @@ point.wise.DF.RCS.HT$RE.meta.lower =  expit(point.wise.DF.RCS.HT$RE.meta.lower )
 
 
 ### B-splines
-point.wise.DF.BS.HT =  pointwise.ma(predictions.BS.HT,
+point.wise.DF.NS.HT =  pointwise.ma(predictions.NS.HT,
                                     clustering.variable = "Study",
                                     combining.variables = c("BMI","Treatment"), 
                                     predicted.outcome =  ".fitted", 
@@ -140,9 +140,9 @@ point.wise.DF.BS.HT =  pointwise.ma(predictions.BS.HT,
 
 ## Backtransform predicted outcomes and their corresponding confidence intervals
 
-point.wise.DF.BS.HT$RE.meta  =  expit(point.wise.DF.BS.HT$RE.meta )
-point.wise.DF.BS.HT$RE.meta.upper  =  expit(point.wise.DF.BS.HT$RE.meta.upper )
-point.wise.DF.BS.HT$RE.meta.lower  =  expit(point.wise.DF.BS.HT$RE.meta.lower)
+point.wise.DF.NS.HT$RE.meta  =  expit(point.wise.DF.NS.HT$RE.meta )
+point.wise.DF.NS.HT$RE.meta.upper  =  expit(point.wise.DF.NS.HT$RE.meta.upper )
+point.wise.DF.NS.HT$RE.meta.lower  =  expit(point.wise.DF.NS.HT$RE.meta.lower)
 
 
 ### P-splines
@@ -205,7 +205,7 @@ point.wise.DF.RCS.HT.plot = point.wise.DF.RCS.HT%>%
 
 
 ### B-splines
-point.wise.DF.BS.HT.plot = point.wise.DF.BS.HT%>%
+point.wise.DF.NS.HT.plot = point.wise.DF.NS.HT%>%
   mutate(Treatment = as.factor(Treatment))%>%
   ggplot(aes(x = BMI, y = RE.meta,linetype =Treatment, color = Treatment)) +geom_line(size=2)+
   geom_ribbon(aes(ymin = RE.meta.lower,ymax=RE.meta.upper),alpha=0.2) +
@@ -279,7 +279,7 @@ point.wise.DF.SS.HT.plot = point.wise.DF.SS.HT%>%
         legend.position = "none") +  
   annotate("text",x = 19.25,y=0.9, size = 10, label = "d") +ylim(c(0,1))
 
-#grid.arrange(point.wise.DF.RCS.HT.plot,point.wise.DF.BS.HT.plot,point.wise.DF.PS.HT.plot,point.wise.DF.SS.HT.plot)
+#grid.arrange(point.wise.DF.RCS.HT.plot,point.wise.DF.NS.HT.plot,point.wise.DF.PS.HT.plot,point.wise.DF.SS.HT.plot)
 
 ### Pseudo-plot to get legend
 p1=  point.wise.DF.SS.HT%>%
@@ -323,7 +323,7 @@ predictions.RCS.HT=predictions.RCS.HT%>%
 
 ### B-splines
 ### Heterogeneous IPD-set with equal BMI ranges
-predictions.BS.HT=predictions.BS.HT%>%
+predictions.NS.HT=predictions.NS.HT%>%
   mutate(Lower =  .fitted - 1.96*.se.fit, 
          Upper =  .fitted + 1.96*.se.fit)%>%
   mutate(fit = expit(.fitted), Lower =  expit(Lower), Upper =  expit(Upper))%>%
@@ -364,7 +364,7 @@ absolute_diff_RCS.HT = risk.diff.creator(dataframe = predictions.RCS.HT,
 
 ### B-splines
 ### Heterogeneous IPD-set with equal BMI ranges
-absolute_diff_BS.HT = risk.diff.creator(dataframe = predictions.BS.HT,
+absolute_diff_NS.HT = risk.diff.creator(dataframe = predictions.NS.HT,
                                         treatment = "Treatment",
                                         outcome = NULL, 
                                         matching.variables = c("BMI","Study"),
@@ -391,7 +391,7 @@ absolute_diff_SS.HT = risk.diff.creator(dataframe = predictions.SS.HT,
 absolute_diff_RCS.HT=  absolute_diff_RCS.HT%>%
   select(Study, BMI, fit.diff, diff.lower, diff.upper)
 
-absolute_diff_BS.HT=  absolute_diff_BS.HT%>%
+absolute_diff_NS.HT=  absolute_diff_NS.HT%>%
   select(Study, BMI, fit.diff, diff.lower, diff.upper)
 
 absolute_diff_PS.HT=  absolute_diff_PS.HT%>%
@@ -427,7 +427,7 @@ point.wise.absolute_diff_RCS.HT =  point.wise.absolute_diff_RCS.HT%>%
 
 
 ### Heterogeneous IPD-set with equal BMI ranges
-point.wise.absolute_diff_BS.HT  =  pointwise.ma(data = absolute_diff_BS.HT ,
+point.wise.absolute_diff_NS.HT  =  pointwise.ma(data = absolute_diff_NS.HT ,
                                                 clustering.variable = "Study",
                                                 combining.variables = c("BMI"),
                                                 predicted.outcome = "fit.diff",
@@ -436,7 +436,7 @@ point.wise.absolute_diff_BS.HT  =  pointwise.ma(data = absolute_diff_BS.HT ,
                                                 tau.method = "REML"
 )
 
-point.wise.absolute_diff_BS.HT =  point.wise.absolute_diff_BS.HT%>%
+point.wise.absolute_diff_NS.HT =  point.wise.absolute_diff_NS.HT%>%
   mutate(BMI =  as.numeric(BMI))
 
 
@@ -492,7 +492,7 @@ point.wise.DF.RCS.HT.diff.plot = point.wise.absolute_diff_RCS.HT%>%
         legend.position = "none") +  
   annotate("text",x = 19.25,y=0.75, size = 10, label = "a")+ ylim(c(-1,1))
 
-point.wise.DF.BS.HT.diff.plot=point.wise.absolute_diff_BS.HT%>%
+point.wise.DF.NS.HT.diff.plot=point.wise.absolute_diff_NS.HT%>%
   ggplot(aes(x = BMI,RE.meta)) + geom_line(size=2)+
   geom_ribbon(mapping = aes(ymin=RE.meta.lower, ymax=RE.meta.upper),alpha=0.25)+geom_hline(yintercept = 0, linetype=2)+ylab("") + 
   xlab("")+theme_minimal()+
