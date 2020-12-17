@@ -5,19 +5,17 @@
 
 source("Code for Figures, Tables, Analysis and data-simulation/Simulated datasets/Second scenario data-set.R")
 #rm(list=ls()[! ls() %in% c("df1","df2","df3","expit","single.df")])
-
+Knots.rcs.df2 = quantile(df2$BMI , probs = c(0.05,0.275,0.5,0.725,0.95))
 Knots.ns.df2= c(25.66667 ,32.83333)
 
-
-Knots.rcs.df2 = list (BMI = (quantile(df2$BMI , probs = c(0.05,0.275,0.5,0.725,0.95))))
 
 
 
 fit.RCS.DR = gam( Y~ BMI + Treatment + BMI*Treatment + 
-                    s(BMI,by = Treatment,bs="cr",fx = T,k = 5) +  
+                    rcspline.eval(BMI,knots = Knots.rcs.df2,inclx= F)*Treatment  +  
                     s(Study,bs = "re") +  
                     s(Study,BMI,bs = "re")+  
-                    s(Study,Treatment,bs = "re"),knots = Knots.rcs.df1,
+                    s(Study,Treatment,bs = "re"),
                   family = binomial("logit"), data = df2, nthreads = 8, method = "REML")
 
 
